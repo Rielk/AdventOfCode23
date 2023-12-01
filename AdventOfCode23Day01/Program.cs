@@ -6,21 +6,10 @@ string input = Resources.Input1;
 List<int> values1 = [];
 foreach (string line in input.Split(Environment.NewLine))
 {
-	bool firstFound = false;
-	int first = 0, last = 0;
-	foreach (char c in line)
-	{
-		if (char.IsNumber(c))
-		{
-			if (!firstFound)
-			{
-				firstFound = true;
-				first = last = c - '0';
-			}
-			else
-				last = c - '0';
-		}
-	}
+	IEnumerable<int> matches = DigitRegex().Matches(line).Cast<Match>().Select(m => StringToInt(m.Value));
+	int first = matches.First();
+	int last = matches.Last();
+
 	values1.Add((10 * first) + last);
 }
 
@@ -39,11 +28,11 @@ foreach (string line in input.Split(Environment.NewLine))
 Console.WriteLine($"Sum of new calibration values: {values2.Sum()}");
 
 
-
-
-
 internal partial class Program
 {
+	[GeneratedRegex(@"\d")]
+	private static partial Regex DigitRegex();
+
 	[GeneratedRegex(@"(?=(one|two|three|four|five|six|seven|eight|nine|\d))")]
 	private static partial Regex NumberRegex();
 
@@ -60,7 +49,8 @@ internal partial class Program
 			"seven" => 7,
 			"eight" => 8,
 			"nine" => 9,
-			_ => input[0] - '0'
+			_ when input.Length == 1 => input[0] - '0',
+			_ => throw new ArgumentException($"\"{input}\" is not recognised as an int", nameof(input))
 		};
 	}
 }
