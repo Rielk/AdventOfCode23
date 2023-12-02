@@ -11,8 +11,12 @@ foreach (string line in input.Split(Environment.NewLine))
 	Games.Add(new(id, split[1]));
 }
 
-DrawSet TestSet = new(12, 13, 14);
+RGBSet TestSet = new(12, 13, 14);
 
 int sumOfPossible = Games.Where(g => g.CanContentsBe(TestSet)).Select(g => g.ID).Sum();
 
+int sumOfPowers = Games.Select(g => g.MinSet.Power).Sum();
+
 Console.WriteLine($"Sum of IDs of possible games: {sumOfPossible}");
+Console.WriteLine();
+Console.WriteLine($"Sum of powers of minimum possible sets: {sumOfPowers}");

@@ -2,7 +2,9 @@
 internal class Game
 {
 	public int ID;
-	public List<DrawSet> DrawSets = [];
+	public List<RGBSet> DrawSets = [];
+
+	public RGBSet MinSet;
 
 	public Game(int id, string gameString)
 	{
@@ -24,7 +26,9 @@ internal class Game
 			}
 			DrawSets.Add(new(red, green, blue));
 		}
+
+		MinSet = new(DrawSets.Select(s => s.Red).Max(), DrawSets.Select(s => s.Green).Max(), DrawSets.Select(s => s.Blue).Max());
 	}
 
-	public bool CanContentsBe(DrawSet testSet) => DrawSets.All(testSet.CanDraw);
+	public bool CanContentsBe(RGBSet testSet) => testSet.CanDraw(MinSet);
 }
