@@ -5,5 +5,8 @@ string input = Resources.Input1;
 
 PartReader partReader = new(input);
 
-int sumOfPartNumbers = partReader.Parts.Sum();
+int sumOfPartNumbers = partReader.GetParts().Sum();
+int sumOfGearRatios = partReader.GetCogs().Sum();
 Console.WriteLine($"Sum of all part numbers: {sumOfPartNumbers}");
+Console.WriteLine();
+Console.WriteLine($"Sum of gear ratios: {sumOfGearRatios}");

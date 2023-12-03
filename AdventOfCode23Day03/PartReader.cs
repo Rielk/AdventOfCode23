@@ -1,76 +1,158 @@
-﻿namespace AdventOfCode23Day03;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace AdventOfCode23Day03;
 internal class PartReader
 {
-	public List<int> Parts { get; set; } = [];
+	private const char BlankChar = '.';
+	private const char CogChar = '*';
+
+	private List<int>? Parts { get; set; }
+
+	private List<int>? Cogs { get; set; }
+
+	public int Width { get; }
+	public int Height { get; }
+	private char[,] CharGrid { get; }
 
 	public PartReader(string partGrid)
 	{
-		int width = partGrid.Split(Environment.NewLine).First().Length;
-		int height = partGrid.Split(Environment.NewLine).Length;
+		Width = partGrid.Split(Environment.NewLine).First().Length;
+		Height = partGrid.Split(Environment.NewLine).Length;
 
-		bool[,] symbolLocations = new bool[width, height];
+		CharGrid = new char[Width, Height];
 		foreach ((int j, string line) in partGrid.Split(Environment.NewLine).Select((line, j) => (j, line)))
 			foreach ((int i, char ch) in line.Select((ch, i) => (i, ch)))
-				if (ch != '.' && !char.IsDigit(ch))
-					symbolLocations[i, j] = true;
+				CharGrid[i, j] = ch;
+	}
 
-		int numberBuffer = 0;
-		int row = 0; int colEnd = 0; int numberLength = 0;
-		foreach ((int j, string line) in partGrid.Split(Environment.NewLine).Select((line, j) => (j, line)))
-		{
-			foreach ((int i, char ch) in line.Select((ch, i) => (i, ch)))
+	public List<int> GetParts()
+	{
+		if (Parts != null) return [.. Parts];
+
+		Parts = [];
+		for (int i = 0; i < Width; i++)
+			for (int j = 0; j < Height; j++)
 			{
-				if (char.IsDigit(ch))
+				char ch = CharGrid[i, j];
+				if (ch != BlankChar && !char.IsDigit(ch))
+					foreach (int number in GetAdjacentNumberPositions(new(i, j)).Select(MakeNumberAt))
+						Parts.Add(number);
+			}
+		return [.. Parts];
+	}
+
+	public List<int> GetCogs()
+	{
+		if (Cogs != null) return [.. Cogs];
+
+		Cogs = [];
+		for (int i = 0; i < Width; i++)
+			for (int j = 0; j < Height; j++)
+			{
+				if (CharGrid[i, j] == CogChar)
 				{
-					numberBuffer *= 10;
-					numberBuffer += ch - '0';
-					row = j;
-					colEnd = i;
-					numberLength++;
+					var adjacentLocations = GetAdjacentNumberPositions(new(i, j)).Take(3).ToList();
+					if (adjacentLocations.Count == 2)
+						Cogs.Add(adjacentLocations.Select(MakeNumberAt).Aggregate((x, y) => x * y));
 				}
-				else
-					EndOfNumber();
 			}
-			EndOfNumber();
-		}
+		return [.. Cogs];
+	}
 
-		void EndOfNumber()
+	private int MakeNumberAt(Location loc)
+	{
+		int y = loc.Y;
+		int x = loc.X;
+		if (!GetNumberAt(x, y, out int? initNumber)) throw new ArgumentException($"Couldn't find a number to start at {loc}");
+		int number = initNumber.Value;
+
+		int xOffset = 1;
+		while (GetNumberAt(x - xOffset, y, out int? additional))
 		{
-			if (numberLength == 0) return;
-
-			foreach ((int x, int y) in GetAdjacentLocations(row, colEnd, numberLength))
-				if (symbolLocations[x, y])
-					Parts.Add(numberBuffer);
-
-			numberBuffer = row = colEnd = numberLength = 0;
+			number += additional.Value * (int)Math.Pow(10, xOffset);
+			xOffset++;
 		}
 
-		IEnumerable<(int x, int y)> GetAdjacentLocations(int row, int colEnd, int length)
+		xOffset = 1;
+		while (GetNumberAt(x + xOffset, y, out int? additional))
 		{
-			int xstart = colEnd - length;
-			int xcount = length + 2;
-			if (xstart < 0)
-			{
-				xstart++;
-				xcount--;
-			}
-			else
-				yield return (colEnd - length, row);
-
-			if (xstart + xcount > width)
-			{
-				xcount--;
-			}
-			else
-				yield return (colEnd + 1, row);
-
-			IEnumerable<int> xrange = Enumerable.Range(xstart, xcount);
-			if (row - 1 > 0)
-				foreach (int x in xrange)
-					yield return (x, row - 1);
-			if (row + 1 < height)
-				foreach (int x in xrange)
-					yield return (x, row + 1);
+			number *= 10;
+			number += additional.Value;
+			xOffset++;
 		}
+		return number;
+	}
+
+	private bool GetNumberAt(int x, int y, [NotNullWhen(true)] out int? value)
+	{
+		if (x < 0 || x >= Width || y < 0 || y >= Height)
+		{
+			value = null;
+			return false;
+		}
+
+		char c = CharGrid[x, y];
+		if (char.IsDigit(c))
+		{
+			value = c - '0';
+			return true;
+		}
+		value = null;
+		return false;
+	}
+
+	private IEnumerable<Location> GetAdjacentNumberPositions(Location loc)
+	{
+		if (CheckForDigit(loc, Direction.W, out Location? WLoc))
+			yield return WLoc;
+		if (CheckForDigit(loc, Direction.E, out Location? ELoc))
+			yield return ELoc;
+
+		if (CheckForDigit(loc, Direction.N, out Location? NLoc))
+			yield return NLoc;
+		else
+		{
+			if (CheckForDigit(loc, Direction.NW, out Location? NWLoc))
+				yield return NWLoc;
+			if (CheckForDigit(loc, Direction.NE, out Location? NELoc))
+				yield return NELoc;
+		}
+
+		if (CheckForDigit(loc, Direction.S, out Location? SLoc))
+			yield return SLoc;
+		else
+		{
+			if (CheckForDigit(loc, Direction.SW, out Location? SWLoc))
+				yield return SWLoc;
+			if (CheckForDigit(loc, Direction.SE, out Location? SELoc))
+				yield return SELoc;
+		}
+	}
+
+	private bool CheckForDigit(Location startLoc, Direction dir, [NotNullWhen(true)] out Location? adjLoc)
+	{
+		if (ApplyDirection(startLoc, dir, out adjLoc))
+			return char.IsDigit(CharGrid[adjLoc.X, adjLoc.Y]);
+		return false;
+	}
+
+	private bool ApplyDirection(Location startLoc, Direction dir, [NotNullWhen(true)] out Location? adjLoc)
+	{
+		int i = startLoc.X; int j = startLoc.Y;
+		adjLoc = dir switch
+		{
+			Direction.N => new(i, j - 1),
+			Direction.NE => new(i + 1, j - 1),
+			Direction.E => new(i + 1, j),
+			Direction.SE => new(i + 1, j + 1),
+			Direction.S => new(i, j + 1),
+			Direction.SW => new(i - 1, j + 1),
+			Direction.W => new(i - 1, j),
+			Direction.NW => new(i - 1, j - 1),
+			_ => throw new NotImplementedException(),
+		};
+		if (adjLoc.X < 0 || adjLoc.X >= Width || adjLoc.Y < 0 || adjLoc.Y >= Height) return false;
+
+		return true;
 	}
 }
