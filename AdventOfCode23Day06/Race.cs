@@ -6,6 +6,8 @@ internal class Race
 	public int HoldTimeMax { get; }
 	public int HoldTimeMin { get; }
 
+	public int NumberOfWaysToWin => HoldTimeMax - HoldTimeMin + 1;
+
 	public Race(long time, long record)
 	{
 		Time = time;
@@ -19,6 +21,4 @@ internal class Race
 		HoldTimeMax = (int)(holdTimeMax == (int)holdTimeMax ? holdTimeMax - 1 : Math.Floor(holdTimeMax));
 		HoldTimeMin = (int)(holdTimeMin == (int)holdTimeMin ? holdTimeMin + 1 : Math.Ceiling(holdTimeMin));
 	}
-
-	public IEnumerable<int> WaysToWin() => Enumerable.Range(HoldTimeMin, HoldTimeMax - HoldTimeMin + 1);
 }
