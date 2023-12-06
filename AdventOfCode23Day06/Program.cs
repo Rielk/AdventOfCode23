@@ -8,10 +8,10 @@ IEnumerable<string> times = split[0].Split(' ').Where(x => !string.IsNullOrEmpty
 IEnumerable<string> distances = split[1].Split(' ').Where(x => !string.IsNullOrEmpty(x)).Skip(1);
 
 var races = times.Zip(distances).Select(x => new Race(int.Parse(x.First), int.Parse(x.Second))).ToList();
-//Race fullRace = new(int.Parse(string.Join("", times)), int.Parse(string.Join("", distances)));
+Race fullRace = new(long.Parse(string.Join("", times)), long.Parse(string.Join("", distances)));
 
 int multiplyWaysToWin = races.Select(r => r.WaysToWin()).Select(ways => ways.Count()).Aggregate((x, y) => x * y);
 
 Console.WriteLine($"Multiplying ways to wind: {multiplyWaysToWin}");
-//Console.WriteLine();
-//Console.WriteLine($"Ways to win full race: {fullRace.WaysToWin().Count()}");
+Console.WriteLine();
+Console.WriteLine($"Ways to win full race: {fullRace.WaysToWin().Count()}");

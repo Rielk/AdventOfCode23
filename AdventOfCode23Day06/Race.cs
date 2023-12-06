@@ -1,12 +1,12 @@
 ﻿namespace AdventOfCode23Day06;
 internal class Race
 {
-	public int Time { get; }
-	public int Record { get; }
+	public long Time { get; }
+	public long Record { get; }
 	public int HoldTimeMax { get; }
 	public int HoldTimeMin { get; }
 
-	public Race(int time, int record)
+	public Race(long time, long record)
 	{
 		Time = time;
 		Record = record;
