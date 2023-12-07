@@ -10,12 +10,22 @@ internal class Hand : IComparable<Hand>
 		Cards = cards.ToArray();
 		if (Cards.Length != 5) throw new ArgumentException("Wrong number of cards in hand", nameof(cards));
 
-		int matches = 0;
-		foreach (Card card in Cards)
-			matches += Cards.Where(c => c == card).Count() - 1; // -1 to ignore the match with self.
+		if (Cards.Contains(Card.Joker))
+		{
+			List<Hand> testHands = [];
+			foreach (Card replacementCard in CardExtensions.JokerReplacements())
+				testHands.Add(new(Cards.Select(c => c == Card.Joker ? replacementCard : c)));
+			Strength = testHands.OrderBy(h => h).Last().Strength;
+		}
+		else
+		{
+			int matches = 0;
+			foreach (Card card in Cards)
+				matches += Cards.Where(c => c == card).Count() - 1; // -1 to ignore the match with self.
 
-		Strength = (HandStrength)matches;
-		if (!Enum.IsDefined(Strength)) throw new Exception("Shouldn't happen. Just double checking algorithm works");
+			Strength = (HandStrength)matches;
+			if (!Enum.IsDefined(Strength)) throw new Exception("Shouldn't happen. Just double checking algorithm works");
+		}
 	}
 
 	public int CompareTo(Hand? other)
