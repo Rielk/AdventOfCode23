@@ -10,25 +10,21 @@ internal class Hand : IComparable<Hand>
 		Cards = cards.ToArray();
 		if (Cards.Length != 5) throw new ArgumentException("Wrong number of cards in hand", nameof(cards));
 
-		if (Cards.Contains(Card.Joker))
+		IEnumerable<Card> nonJokerCards = Cards.Where(c => c != Card.Joker);
+		if (nonJokerCards.Any())
 		{
-			List<Hand> testHands = [];
-			foreach (Card replacementCard in Cards.Where(c => c != Card.Joker).Distinct()) //Only have to consider Joker being swapped to other cards in hand.
-				testHands.Add(new(Cards.Select(c => c == Card.Joker ? replacementCard : c)));
-			if (testHands.Count == 0) //Cards are all Jokers, so 5oak
-				Strength = HandStrength.FiveOAK;
-			else
-				Strength = testHands.Select(h => h.Strength).OrderDescending().First();
-		}
-		else
-		{
+			Card jokerReplacement = nonJokerCards.GroupBy(c => c).OrderByDescending(g => g.Count()).First().Key; //Counts cards that aren't jokers
+
 			int matches = 0;
-			foreach (Card card in Cards)
-				matches += Cards.Where(c => c == card).Count() - 1; // -1 to ignore the match with self.
+			IEnumerable<Card> replacedCards = Cards.Select(c => c == Card.Joker ? jokerReplacement : c);
+			foreach (Card card in replacedCards)
+				matches += replacedCards.Where(c => c == card).Count() - 1; // -1 to ignore the match with self.
 
 			Strength = (HandStrength)matches;
 			if (!Enum.IsDefined(Strength)) throw new Exception("Shouldn't happen. Just double checking algorithm works");
 		}
+		else //Cards are all Jokers, so 5oak
+			Strength = HandStrength.FiveOAK;
 	}
 
 	public int CompareTo(Hand? other)
