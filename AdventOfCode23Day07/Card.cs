@@ -39,19 +39,4 @@ internal static class CardExtensions
 	};
 
 	public static int Value(this Card card) => (int)card;
-	internal static IEnumerable<Card> JokerReplacements()
-	{
-		yield return Card.Ace;
-		yield return Card.King;
-		yield return Card.Queen;
-		yield return Card.Ten;
-		yield return Card.Nine;
-		yield return Card.Eight;
-		yield return Card.Seven;
-		yield return Card.Six;
-		yield return Card.Five;
-		yield return Card.Four;
-		yield return Card.Three;
-		yield return Card.Two;
-	}
 }

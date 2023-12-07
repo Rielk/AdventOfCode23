@@ -13,9 +13,12 @@ internal class Hand : IComparable<Hand>
 		if (Cards.Contains(Card.Joker))
 		{
 			List<Hand> testHands = [];
-			foreach (Card replacementCard in CardExtensions.JokerReplacements())
+			foreach (Card replacementCard in Cards.Where(c => c != Card.Joker).Distinct()) //Only have to consider Joker being swapped to other cards in hand.
 				testHands.Add(new(Cards.Select(c => c == Card.Joker ? replacementCard : c)));
-			Strength = testHands.OrderBy(h => h).Last().Strength;
+			if (testHands.Count == 0) //Cards are all Jokers, so 5oak
+				Strength = HandStrength.FiveOAK;
+			else
+				Strength = testHands.OrderBy(h => h).Last().Strength;
 		}
 		else
 		{
