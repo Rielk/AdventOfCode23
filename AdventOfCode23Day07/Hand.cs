@@ -18,7 +18,7 @@ internal class Hand : IComparable<Hand>
 			if (testHands.Count == 0) //Cards are all Jokers, so 5oak
 				Strength = HandStrength.FiveOAK;
 			else
-				Strength = testHands.OrderBy(h => h).Last().Strength;
+				Strength = testHands.Select(h => h.Strength).OrderDescending().First();
 		}
 		else
 		{
