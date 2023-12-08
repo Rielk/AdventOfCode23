@@ -69,7 +69,9 @@ internal class Node
 		while (true)
 		{
 			int interval = node.FollowNodes(endPredicate, routeEnumerator, out node);
-			bool loopComplete = intervalNodes.Contains(node);
+			bool loopComplete = intervalNodes.Contains(node); //This ignores position in the ENumerable which only works because of the question's input.
+															  //In the general case this would fail
+															  //TODO: Generalise by also trcking poistion in route and comparing.
 			tmpIntervals.Add(interval);
 			intervalNodes.Add(node);
 
