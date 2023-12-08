@@ -24,6 +24,11 @@ static IEnumerable<NodeFrame> EnumerateFrames(string input)
 
 Dictionary<string, Node> nodes = Node.CreateNodes(frames);
 
-int stepCount = nodes["AAA"].FollowNodes(nodes["ZZZ"], route.Enumerable());
-
+int stepCount = nodes["AAA"].FollowNodes(nodes["ZZZ"], route);
 Console.WriteLine($"Steps to reach \"ZZZ\": {stepCount}");
+
+Console.WriteLine();
+
+var ghostStarts = nodes.Values.Where(n => n.Name.EndsWith('A')).ToList();
+long stepCountGhost = ghostStarts.FollowNodes(n => n.Name.EndsWith('Z'), route);
+Console.WriteLine($"Steps for ghosts to reach ends: {stepCountGhost}");

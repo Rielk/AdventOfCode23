@@ -113,5 +113,23 @@ namespace AdventOfCode23Day08.Properties {
                 return ResourceManager.GetString("InputTest2", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LR
+        ///
+        ///11A = (11B, XXX)
+        ///11B = (XXX, 11Z)
+        ///11Z = (11B, XXX)
+        ///22A = (22B, XXX)
+        ///22B = (22C, 22C)
+        ///22C = (22Z, 22Z)
+        ///22Z = (22B, 22B)
+        ///XXX = (XXX, XXX).
+        /// </summary>
+        internal static string InputTest3 {
+            get {
+                return ResourceManager.GetString("InputTest3", resourceCulture);
+            }
+        }
     }
 }

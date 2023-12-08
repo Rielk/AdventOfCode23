@@ -33,24 +33,68 @@ internal class Node
 			ret[frame.Name].SetPaths(ret[frame.Left], ret[frame.Right]);
 		return ret;
 	}
+
+	public int FollowNodes(Node endNode, IEnumerable<Direction> route) => FollowNodes(this, endNode, route);
+	public static int FollowNodes(Node startNode, Node endNode, IEnumerable<Direction> route)
+	{
+		return FollowNodes(startNode, n => n == endNode, route.GetEnumerator(), out _);
+	}
+
+	private int FollowNodes(Func<Node, bool> endPredicate, IEnumerator<Direction> route, out Node endNode) => FollowNodes(this, endPredicate, route, out endNode);
+	private static int FollowNodes(Node startNode, Func<Node, bool> endPredicate, IEnumerator<Direction> route, out Node endNode)
+	{
+		int steps = 0;
+		Node currNode = startNode;
+		while (route.MoveNext())
+		{
+			Direction direction = route.Current;
+			currNode = currNode.Follow(direction);
+			steps++;
+			if (endPredicate(currNode))
+			{
+				endNode = currNode;
+				return steps;
+			}
+		}
+		throw new NotImplementedException("Didn't reach end before route ran out");
+	}
+
+	public IntervalLoop FindLoopIntervals(Func<Node, bool> endPredicate, IEnumerable<Direction> route) => FindLoopIntervals(this, endPredicate, route);
+	public static IntervalLoop FindLoopIntervals(Node startNode, Func<Node, bool> endPredicate, IEnumerable<Direction> route)
+	{
+		List<int> tmpIntervals = [];
+		List<Node> intervalNodes = [];
+		Node node = startNode;
+		IEnumerator<Direction> routeEnumerator = route.GetEnumerator();
+		while (true)
+		{
+			int interval = node.FollowNodes(endPredicate, routeEnumerator, out node);
+			bool loopComplete = intervalNodes.Contains(node);
+			tmpIntervals.Add(interval);
+			intervalNodes.Add(node);
+
+			if (loopComplete)
+			{
+				int loopStartIndex = intervalNodes.IndexOf(node) + 1;
+				var beforeLoop = tmpIntervals.Take(loopStartIndex).Select(i => (long)i).ToList();
+				var inLoop = tmpIntervals.Skip(loopStartIndex).Select(i => (long)i).ToList();
+				return new(beforeLoop, inLoop);
+			}
+		}
+	}
 }
 
 internal static class NodeExtensions
 {
-	public static int FollowNodes(this Node startNode, Node endNode, IEnumerable<Direction> route)
+	public static long FollowNodes(this IEnumerable<Node> startNodes, Func<Node, bool> endPredicate, IEnumerable<Direction> route)
 	{
-		int steps = 0;
-		Node currNode = startNode;
-		foreach (Direction direction in route)
-		{
-			currNode = currNode.Follow(direction);
-			steps++;
-			if (currNode == endNode)
-				return steps;
-		}
-		throw new NotImplementedException("Didn't reach end before route ran out");
+		List<IntervalLoop> intervalSets = [];
+		foreach (Node node in startNodes)
+			intervalSets.Add(node.FindLoopIntervals(endPredicate, route));
+
+		IntervalLoop finalInterval = intervalSets.Aggregate((x, y) => x.FindIntersect(y));
+		return finalInterval.Start;
 	}
 }
 
-internal record NodeFrame(string Name, string Left, string Right)
-{ }
+internal record NodeFrame(string Name, string Left, string Right) { }

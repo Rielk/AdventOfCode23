@@ -1,5 +1,7 @@
-﻿namespace AdventOfCode23Day08;
-internal class InfiniteLoop<T>(IEnumerable<T> baseEnumerable)
+﻿using System.Collections;
+
+namespace AdventOfCode23Day08;
+internal class InfiniteLoop<T>(IEnumerable<T> baseEnumerable) : IEnumerable<T>
 {
 	public IEnumerable<T> BaseEnumerable { get; } = baseEnumerable;
 
@@ -9,4 +11,10 @@ internal class InfiniteLoop<T>(IEnumerable<T> baseEnumerable)
 			foreach (T c in BaseEnumerable)
 				yield return c;
 	}
+
+	public IEnumerator<T> GetEnumerator()
+	{
+		foreach (T t in Enumerable()) yield return t;
+	}
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
