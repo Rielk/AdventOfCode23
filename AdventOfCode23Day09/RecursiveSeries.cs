@@ -40,33 +40,34 @@ internal class RecursiveSeries : IEnumerable<long>
 		}
 
 		long val = Start;
+		int index = 0;
+
+		IEnumerable<long> preDifs;
 		if (firstIndex < 0)
 		{
-			IEnumerable<long> preDifs = Differences.GetNValues(-firstIndex, firstIndex).ToList();
+			preDifs = Differences.GetNValues(-firstIndex, firstIndex).ToList();
 			foreach (long dif in preDifs.Reverse())
-				val -= dif;
-
-			yield return val;
-			int count = 1;
-
-			foreach (long dif in preDifs.Concat(Differences.GetNValues(n + firstIndex - 1)))
 			{
-				if (count >= n)
-					yield break;
-				val += dif;
-				yield return val;
+				val -= dif; index--;
 			}
 		}
 		else
+			preDifs = Enumerable.Empty<long>();
+
+		int count = 0;
+		if (index >= firstIndex)
 		{
-			int index = 0;
-			foreach (long dif in Differences.GetNValues(n + firstIndex - 1))
+			count++; yield return val;
+		}
+		foreach (long dif in preDifs.Concat(Differences.GetNValues(n + firstIndex - 1)))
+		{
+			if (count >= n)
+				break;
+			val += dif; index++;
+			if (index >= firstIndex)
 			{
-				if (index >= firstIndex)
-					yield return val;
-				val += dif;
+				count++; yield return val;
 			}
-			yield return val;
 		}
 	}
 
