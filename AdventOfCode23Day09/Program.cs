@@ -10,6 +10,9 @@ foreach (string line in input.Split(Environment.NewLine))
 	series.Add(new(split));
 }
 
-long sumOfExtrapolatedValues = series.Select(s => s.GetNValue(s.Length + 1).Last()).Sum();
+long sumOfPostExtrapolatedValues = series.Select(s => s.GetValue(s.Length)).Sum();
+long sumOfPreExtrapolatedValues = series.Select(s => s.GetValue(-1)).Sum();
 
-Console.WriteLine($"Sum of extrapolated values: {sumOfExtrapolatedValues}");
+Console.WriteLine($"Sum of post extrapolated values: {sumOfPostExtrapolatedValues}");
+Console.WriteLine();
+Console.WriteLine($"Sum of pre extrapolated values: {sumOfPreExtrapolatedValues}");
