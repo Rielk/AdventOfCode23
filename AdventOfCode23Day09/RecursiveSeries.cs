@@ -12,17 +12,18 @@ internal class RecursiveSeries : IEnumerable<long>
 		Start = values.First();
 		List<long> diffs = [];
 		long first = values.First();
+		Length = 1;
 		foreach (long second in values.Skip(1))
 		{
 			diffs.Add(second - first);
 			first = second;
+			Length++;
 		}
 
 		if (diffs.All(d => d.Equals(0)))
 			Differences = null;
 		else
 			Differences = new(diffs);
-		Length = values.Count();
 	}
 
 	public long GetValue(int index) => GetNValues(1, index).First();
