@@ -127,4 +127,13 @@
   <data name="InputTest2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\InputTest2.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="InputTest3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\InputTest3.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="InputTest4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\InputTest4.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="InputTest5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\InputTest5.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
 </root>

@@ -1,6 +1,8 @@
 ﻿namespace AdventOfCode23Day10;
 internal readonly record struct Location(int X, int Y)
 {
+	public static Location operator +(Location a, Location b) => new(a.X + b.X, a.Y + b.Y);
+
 	public Location ApplyDirection(Direction direction) => direction switch
 	{
 		Direction.N => new(X, Y - 1),

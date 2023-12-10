@@ -19,6 +19,29 @@ internal static class PipeDirectionExtensions
 		_ => throw new NotImplementedException()
 	};
 
+	public static PipeDirection WithOutDirection(this Direction inDir, Direction outDir) => (inDir, outDir) switch
+	{
+		(Direction.S, Direction.S) => PipeDirection.NS,
+		(Direction.N, Direction.N) => PipeDirection.NS,
+
+		(Direction.E, Direction.E) => PipeDirection.WE,
+		(Direction.W, Direction.W) => PipeDirection.WE,
+
+		(Direction.S, Direction.E) => PipeDirection.NE,
+		(Direction.W, Direction.N) => PipeDirection.NE,
+
+		(Direction.S, Direction.W) => PipeDirection.NW,
+		(Direction.E, Direction.N) => PipeDirection.NW,
+
+		(Direction.N, Direction.W) => PipeDirection.SW,
+		(Direction.E, Direction.S) => PipeDirection.SW,
+
+		(Direction.N, Direction.E) => PipeDirection.SE,
+		(Direction.W, Direction.S) => PipeDirection.SE,
+
+		_ => throw new NotImplementedException(),
+	};
+
 	public static Direction NextDirection(this PipeDirection pipeDirection, Direction lastDirection)
 	{
 		return (pipeDirection, lastDirection) switch
@@ -53,4 +76,15 @@ internal static class PipeDirectionExtensions
 			_ => throw new NotImplementedException(),
 		};
 	}
+
+	public static bool IsHorizontal(this PipeDirection pipeDirection) => pipeDirection switch
+	{
+		PipeDirection.NS => false,
+		PipeDirection.WE => true,
+		PipeDirection.NE => true,
+		PipeDirection.NW => true,
+		PipeDirection.SW => true,
+		PipeDirection.SE => true,
+		_ => throw new NotImplementedException(),
+	};
 }

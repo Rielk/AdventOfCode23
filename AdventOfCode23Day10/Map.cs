@@ -7,8 +7,8 @@ internal class Map
 
 	public Location Start { get; }
 
-	private List<Direction>? loop = null;
-	public List<Direction> Loop { get => GetLoop(); }
+	private List<Location>? loop = null;
+	public List<Location> Loop { get => GetLoop(); }
 
 	public Map(IEnumerable<IEnumerable<char>> characters)
 	{
@@ -33,31 +33,70 @@ internal class Map
 		return Pipes[location.X, location.Y];
 	}
 
-	public List<Direction> GetLoop()
+	public List<Location> GetLoop()
 	{
 		if (loop != null) return loop;
 
 		foreach (Direction initialDirection in Directions.Cardinal)
 		{
-			List<Direction> path = [];
+			List<Location> path = [];
 			Location location = Start;
-			Direction direction = initialDirection;
+			Direction nextDirection, direction = initialDirection;
 
 			while (true)
 			{
-				path.Add(direction);
+				path.Add(location);
 				location = location.ApplyDirection(direction);
 				PipeDirection pipeDirection = GetPipeDirection(location);
-				direction = pipeDirection.NextDirection(direction);
-				if (direction == Direction.DeadEnd)
+				nextDirection = pipeDirection.NextDirection(direction);
+				if (nextDirection == Direction.DeadEnd)
 					break;
-				if (direction == Direction.Start)
+				if (nextDirection == Direction.Start)
 				{
 					loop = path;
+					Pipes[Start.X, Start.Y] = direction.WithOutDirection(initialDirection);
 					return path;
 				}
+				direction = nextDirection;
 			}
 		}
 		throw new NotImplementedException("There is no valid loop.");
+	}
+
+
+
+	public int FindEnclosedArea()
+	{
+		List<Location> path = GetLoop();
+		int count = 0;
+
+		IEnumerable<IGrouping<int, Location>> yIntersects = path.Where(l => GetPipeDirection(l).IsHorizontal()).GroupBy(l => l.X);
+		foreach (IGrouping<int, Location> yIntersect in yIntersects)
+		{
+			int x = yIntersect.Key;
+			var yValues = yIntersect.OrderBy(l => l.Y).ToList();
+			bool inside = true;
+			foreach ((Location First, Location Second) in yValues.Zip(yValues.Skip(1)))
+			{
+				if (GetPipeDirection(First) is PipeDirection.SE)
+				{
+					if (GetPipeDirection(Second) is PipeDirection.NE)
+						inside = !inside;
+					continue;
+				}
+
+				if (GetPipeDirection(First) is PipeDirection.SW)
+				{
+					if (GetPipeDirection(Second) is PipeDirection.NW)
+						inside = !inside;
+					continue;
+				}
+
+				if (inside)
+					count += Second.Y - First.Y - 1;
+				inside = !inside;
+			}
+		}
+		return count;
 	}
 }
