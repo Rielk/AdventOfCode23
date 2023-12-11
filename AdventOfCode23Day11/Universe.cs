@@ -7,7 +7,7 @@ internal class Universe
 	public int Width { get; private set; }
 	public int Height { get; private set; }
 
-	public Universe(string input)
+	public Universe(string input, int splitDistance)
 	{
 		Galaxies = [];
 		foreach ((string line, int y) in input.Split(Environment.NewLine).Select((line, i) => (line, i)))
@@ -21,10 +21,10 @@ internal class Universe
 		}
 		Width = input.Split(Environment.NewLine)[0].Length;
 
-		ExpandUniverse();
+		ExpandUniverse(splitDistance - 1);
 	}
 
-	private void ExpandUniverse()
+	private void ExpandUniverse(int splitIncrease)
 	{
 		int i = Width - 1;
 		while (i >= 0)
@@ -32,8 +32,8 @@ internal class Universe
 			bool galaxyInCol = Galaxies.Where(g => g.X == i).Any();
 			if (!galaxyInCol)
 			{
-				Galaxies.ForEach(g => g.ExpandAtX(i));
-				Width++;
+				Galaxies.ForEach(g => g.ExpandAtX(i, splitIncrease));
+				Width += splitIncrease;
 			}
 			i--;
 		}
@@ -44,16 +44,16 @@ internal class Universe
 			bool galaxyInRow = Galaxies.Where(g => g.Y == j).Any();
 			if (!galaxyInRow)
 			{
-				Galaxies.ForEach(g => g.ExpandAtY(j));
-				Height++;
+				Galaxies.ForEach(g => g.ExpandAtY(j, splitIncrease));
+				Height += splitIncrease;
 			}
 			j--;
 		}
 	}
 
-	public int FindSumOfPairLength()
+	public long FindSumOfPairLength()
 	{
-		int ret = 0;
+		long ret = 0;
 		for (int i = 0; i < Galaxies.Count; i++)
 		{
 			Location first = Galaxies[i];

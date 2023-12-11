@@ -4,16 +4,16 @@ internal class Location(int x, int y)
 	public int X { get; private set; } = x;
 	public int Y { get; private set; } = y;
 
-	public void ExpandAtX(int x)
+	public void ExpandAtX(int x, int splitIncrease)
 	{
 		if (x < X)
-			X++;
+			X += splitIncrease;
 	}
 
-	public void ExpandAtY(int y)
+	public void ExpandAtY(int y, int splitIncrease)
 	{
 		if (y < Y)
-			Y++;
+			Y += splitIncrease;
 	}
 
 	public int DistanceTo(Location other)
