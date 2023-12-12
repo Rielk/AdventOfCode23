@@ -8,15 +8,6 @@ internal enum Condition
 
 internal static class ConditionExtensions
 {
-	public static IEnumerable<Condition> KnownConditions
-	{
-		get
-		{
-			yield return Condition.Operational;
-			yield return Condition.Damaged;
-		}
-	}
-
 	public static Condition ToCondition(this char c)
 	{
 		if (Enum.IsDefined(typeof(Condition), (int)c))

@@ -1,56 +1,92 @@
-﻿namespace AdventOfCode23Day12;
+﻿
+
+
+namespace AdventOfCode23Day12;
 internal class DamageReport(IEnumerable<Condition> conditions, IEnumerable<int> damagedBlocks)
 {
-	public Condition[] Conditions { get; } = conditions.ToArray();
+	public Condition[] Conditions { get; } = RemoveExcessOperational(conditions).ToArray();
 	public int[] DamagedBlocks { get; } = damagedBlocks.ToArray();
-	private int[] UnknownIndexs { get; } = conditions.Select((c, i) => (c, i)).Where(t => t.c == Condition.Unknown).Select(t => t.i).ToArray();
 
 	private int? arrangements = null;
+
+	private static IEnumerable<Condition> RemoveExcessOperational(IEnumerable<Condition> conditions)
+	{
+		bool onOp = false;
+		foreach (Condition c in conditions)
+		{
+			if (c == Condition.Operational)
+			{
+				if (!onOp)
+				{
+					yield return c;
+					onOp = true;
+				}
+			}
+			else
+			{
+				yield return c;
+				onOp = false;
+			}
+		}
+	}
+
 	public int Arrangements { get => GetArrangements(); }
 
 	public int GetArrangements()
 	{
 		if (arrangements.HasValue) return arrangements.Value;
-		arrangements = GetArrangements(0, [.. Conditions]);
+		arrangements = LookUpOrFindArrangements(0, 0, MakeCache());
 		return arrangements.Value;
 	}
 
-	private int GetArrangements(int itter, Condition[] TestConditions)
+	private Dictionary<int, Dictionary<int, int>> MakeCache()
 	{
-		int count = 0;
-		if (itter >= UnknownIndexs.Length)
-			return ConditionsMatch(TestConditions) ? 1 : 0;
-		int index = UnknownIndexs[itter];
-		foreach (Condition condition in ConditionExtensions.KnownConditions)
+		Dictionary<int, Dictionary<int, int>> ret = [];
+		foreach (int i in Enumerable.Range(0, DamagedBlocks.Length))
+			ret.Add(i, []);
+		return ret;
+	}
+
+	private int LookUpOrFindArrangements(int matchedBlocks, int removedConditions, Dictionary<int, Dictionary<int, int>> cache)
+	{
+		if (matchedBlocks == DamagedBlocks.Length)
 		{
-			TestConditions[index] = condition;
-			count += GetArrangements(itter + 1, TestConditions);
+			if (Conditions.Skip(removedConditions).Any(c => c == Condition.Damaged))
+				return 0;
+			else
+				return 1;
 		}
+
+		if (cache[matchedBlocks].TryGetValue(removedConditions, out int count))
+			return count;
+		else
+			count = 0;
+
+		int target = DamagedBlocks[matchedBlocks];
+		//int maxIndex = remainingConditions.Length - (DamagedBlocks.Skip(matchedBlocks + 1).Select(x => x + 1).Sum());
+		for (int i = removedConditions; i < Conditions.Length; i++)
+		{
+			bool canStartAt = CanStartAt(i, target);
+			if (canStartAt)
+				count += LookUpOrFindArrangements(matchedBlocks + 1, i + target + 1, cache);
+			if (Conditions[i] == Condition.Damaged)
+				break;
+		}
+		cache[matchedBlocks].Add(removedConditions, count);
 		return count;
 	}
 
-	private bool ConditionsMatch(IEnumerable<Condition> compareConditions)
+	private bool CanStartAt(int skip, int target)
 	{
-		List<int> compareBlocks = [];
-		int count = 0;
-		foreach (Condition condition in compareConditions)
-		{
-			if (condition == Condition.Unknown) throw new ArgumentException("Can't compare conditions with unknown condition sets");
-			else if (condition == Condition.Operational)
-			{
-				if (count > 0)
-				{
-					compareBlocks.Add(count);
-					count = 0;
-				}
-			}
-			else if (condition == Condition.Damaged)
-				count++;
-			else
-				throw new ArgumentException("Unknown condition in condition set");
-		}
-		if (count > 0)
-			compareBlocks.Add(count);
-		return compareBlocks.SequenceEqual(DamagedBlocks);
+		if (skip > 0 && Conditions[skip - 1] == Condition.Damaged)
+			return false;
+		if (skip + target > Conditions.Length)
+			return false;
+		if (skip + target < Conditions.Length && Conditions[skip + target] == Condition.Damaged)
+			return false;
+		foreach (Condition c in Conditions.Skip(skip).Take(target))
+			if (c is Condition.Operational)
+				return false;
+		return true;
 	}
 }
