@@ -1,13 +1,10 @@
-﻿
-
-
-namespace AdventOfCode23Day12;
-internal class DamageReport(IEnumerable<Condition> conditions, IEnumerable<int> damagedBlocks)
+﻿namespace AdventOfCode23Day12;
+internal class DamageReport(IEnumerable<Condition> conditions, IEnumerable<int> damagedBlocks, int repeats = 1)
 {
-	public Condition[] Conditions { get; } = RemoveExcessOperational(conditions).ToArray();
-	public int[] DamagedBlocks { get; } = damagedBlocks.ToArray();
+	public Condition[] Conditions { get; } = RemoveExcessOperational(RepeatConditions(conditions, repeats)).ToArray();
+	public int[] DamagedBlocks { get; } = Enumerable.Repeat(damagedBlocks, repeats).SelectMany(x => x).ToArray();
 
-	private int? arrangements = null;
+	private long? arrangements = null;
 
 	private static IEnumerable<Condition> RemoveExcessOperational(IEnumerable<Condition> conditions)
 	{
@@ -30,24 +27,35 @@ internal class DamageReport(IEnumerable<Condition> conditions, IEnumerable<int> 
 		}
 	}
 
-	public int Arrangements { get => GetArrangements(); }
+	private static IEnumerable<Condition> RepeatConditions(IEnumerable<Condition> conditions, int repeats)
+	{
+		for (int i = 0; i < repeats; i++)
+		{
+			foreach (Condition c in conditions)
+				yield return c;
+			if (i < repeats - 1)
+				yield return Condition.Unknown;
+		}
+	}
 
-	public int GetArrangements()
+	public long Arrangements { get => GetArrangements(); }
+
+	public long GetArrangements()
 	{
 		if (arrangements.HasValue) return arrangements.Value;
 		arrangements = LookUpOrFindArrangements(0, 0, MakeCache());
 		return arrangements.Value;
 	}
 
-	private Dictionary<int, Dictionary<int, int>> MakeCache()
+	private Dictionary<int, Dictionary<int, long>> MakeCache()
 	{
-		Dictionary<int, Dictionary<int, int>> ret = [];
+		Dictionary<int, Dictionary<int, long>> ret = [];
 		foreach (int i in Enumerable.Range(0, DamagedBlocks.Length))
 			ret.Add(i, []);
 		return ret;
 	}
 
-	private int LookUpOrFindArrangements(int matchedBlocks, int removedConditions, Dictionary<int, Dictionary<int, int>> cache)
+	private long LookUpOrFindArrangements(int matchedBlocks, int removedConditions, Dictionary<int, Dictionary<int, long>> cache)
 	{
 		if (matchedBlocks == DamagedBlocks.Length)
 		{
@@ -57,7 +65,7 @@ internal class DamageReport(IEnumerable<Condition> conditions, IEnumerable<int> 
 				return 1;
 		}
 
-		if (cache[matchedBlocks].TryGetValue(removedConditions, out int count))
+		if (cache[matchedBlocks].TryGetValue(removedConditions, out long count))
 			return count;
 		else
 			count = 0;
