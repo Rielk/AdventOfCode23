@@ -17,8 +17,8 @@ foreach (string line in input.Split(Environment.NewLine))
 }
 patterns.Add(new(tmpPattern));
 
-int sumOfSplitValues = patterns.Select(p => p.GetSplitValue()).Sum();
-int sumOfCleanedSplitValues = patterns.Select(p => p.GetSplitValue(1)).Sum();
+int sumOfSplitValues = Task.WhenAll(patterns.Select(p => p.GetSplitValueAsync())).Result.Sum();
+int sumOfCleanedSplitValues = Task.WhenAll(patterns.Select(p => p.GetSplitValueAsync(1))).Result.Sum();
 
 Console.WriteLine($"Sum of Split Values: {sumOfSplitValues}");
 Console.WriteLine();
