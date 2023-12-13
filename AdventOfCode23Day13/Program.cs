@@ -17,10 +17,8 @@ foreach (string line in input.Split(Environment.NewLine))
 }
 patterns.Add(new(tmpPattern));
 
-int sumOfSplitValues = patterns.Select(p => p.SplitValue).Sum();
-foreach (Pattern pattern in patterns)
-	pattern.FixSmudge();
-int sumOfCleanedSplitValues = patterns.Select(p => p.SplitValue).Sum();
+int sumOfSplitValues = patterns.Select(p => p.GetSplitValue()).Sum();
+int sumOfCleanedSplitValues = patterns.Select(p => p.GetSplitValue(1)).Sum();
 
 Console.WriteLine($"Sum of Split Values: {sumOfSplitValues}");
 Console.WriteLine();
