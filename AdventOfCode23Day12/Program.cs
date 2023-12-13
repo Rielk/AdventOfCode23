@@ -13,8 +13,8 @@ foreach (string line in input.Split(Environment.NewLine))
 	unfoldedReports.Add(new(conditions, blocks, 5));
 }
 
-long sumOfArrangements = reports.Select(r => r.GetArrangements()).Sum();
-long sumOfUnfoldedArrangements = unfoldedReports.Select(r => r.GetArrangements()).Sum();
+long sumOfArrangements = Task.WhenAll(reports.Select(r => Task.Run(() => r.GetArrangements()))).Result.Sum();
+long sumOfUnfoldedArrangements = Task.WhenAll(unfoldedReports.Select(r => Task.Run(() => r.GetArrangements()))).Result.Sum();
 
 Console.WriteLine($"Sum of arrangements: {sumOfArrangements}");
 Console.WriteLine();
