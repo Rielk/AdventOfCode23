@@ -18,16 +18,37 @@ internal class Pattern
 
 	public int GetSplitValue(int smudges = 0)
 	{
-		if (ColumnSymmetry(out int leftColumn, smudges))
-			return leftColumn + 1;
-		if (RowSymmetry(out int topRow, smudges))
-			return 100 * (topRow + 1);
-
-		throw new NotImplementedException("Couldn't find any symmetry");
+		(bool, int)[] results = Task.WhenAll(ColumnSymmetryAsync(smudges), RowSymmetryAsync(smudges)).Result;
+		(bool colHasSymmetry, int LeftColumn) = results[0];
+		(bool rowHasSymmetry, int TopRow) = results[1];
+		if (colHasSymmetry && rowHasSymmetry)
+			throw new NotImplementedException("Found both horizontal and vertical symmetry");
+		else if (colHasSymmetry)
+			return LeftColumn + 1;
+		else if (rowHasSymmetry)
+			return 100 * (TopRow + 1);
+		else
+			throw new NotImplementedException("Couldn't find any symmetry");
 	}
 
+	private Task<(bool HasSymmetry, int LeftColumn)> ColumnSymmetryAsync(int smudges)
+	{
+		return Task.Run(() =>
+		{
+			bool hasSymetry = ColumnSymmetry(out int leftColumn, smudges);
+			return (hasSymetry, leftColumn);
+		});
+	}
 	private bool ColumnSymmetry(out int leftColumn, int smudges) => GeneralSymmetry(GetColumn, Width, out leftColumn, smudges);
 
+	private Task<(bool HasSymmetry, int TopRow)> RowSymmetryAsync(int smudges)
+	{
+		return Task.Run(() =>
+		{
+			bool hasSymetry = RowSymmetry(out int topRows, smudges);
+			return (hasSymetry, topRows);
+		});
+	}
 	private bool RowSymmetry(out int topRows, int smudges) => GeneralSymmetry(GetRow, Height, out topRows, smudges);
 
 	private static bool GeneralSymmetry(Func<int, IEnumerable<short>> lineGenerator, int limit, out int result, int targetSmudges)
