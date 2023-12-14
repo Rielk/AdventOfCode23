@@ -17,7 +17,7 @@ internal class Dish
 		foreach ((string line, int y) in input.Select((line, y) => (line, y)))
 			foreach ((Rock r, int x) in line.Select((c, x) => (c.ToRock(), x)))
 				Rocks[x, y] = r;
-		State = new(Rocks, this);
+		State = new(Rocks, Width, Height);
 	}
 
 	public int GetTotalLoad()
@@ -27,5 +27,25 @@ internal class Dish
 		return totalLoad.Value;
 	}
 
-	internal DishState TiltNorth() => State.TiltNorth();
+	internal DishState SeeTilt(Direction direction) => State.Tilt(direction);
+
+	public void PerformNCycles(int n)
+	{
+		Dictionary<DishState, int> PreviousStates = [];
+		for (int i = 0; i < n; i++)
+		{
+			if (PreviousStates.TryGetValue(State, out int prevCount))
+			{
+				int loopLength = i - prevCount;
+				int extraCycles = (n - prevCount) % loopLength;
+				for (int j = 0; j < extraCycles; j++)
+					PerformCycle();
+				return;
+			}
+			PreviousStates[State] = i;
+			PerformCycle();
+		}
+	}
+
+	private void PerformCycle() => State = State.Tilt(Direction.N).Tilt(Direction.W).Tilt(Direction.S).Tilt(Direction.E);
 }

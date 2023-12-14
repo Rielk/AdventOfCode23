@@ -1,11 +1,16 @@
 ﻿using AdventOfCode23Day14;
 using AdventOfCode23Day14.Properties;
 
-string input = Resources.InputTest1;
+string input = Resources.Input1;
 
 Dish dish = new(input.Split(Environment.NewLine));
 
-DishState oneNorthTile = dish.TiltNorth();
+DishState oneNorthTile = dish.SeeTilt(Direction.N);
 int totalLoad = oneNorthTile.CalculateTotalLoad();
 
-Console.WriteLine($"Total Load: {totalLoad}");
+dish.PerformNCycles(1000000000);
+int totalLoadAfterCycles = dish.TotalLoad;
+
+Console.WriteLine($"Total Load after 1 tilt: {totalLoad}");
+Console.WriteLine();
+Console.WriteLine($"Total Load after 1000000000 cycles: {totalLoadAfterCycles}");
