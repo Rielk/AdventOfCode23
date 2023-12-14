@@ -48,30 +48,71 @@ internal class DishState(Rock[,] rocks, int width, int height) : IEquatable<Dish
 		switch (direction)
 		{
 			case Direction.N:
-				for (int col = 0; col < Width; col++)
-					foreach ((Rock rock, int i) in RollRocks(GetColumn(col)).Select((r, i) => (r, i)))
-						newRocks[col, i] = rock;
+				Task.WhenAll(TiltNorth(newRocks)).Wait();
 				break;
 			case Direction.S:
-				for (int col = 0; col < Width; col++)
-					foreach ((Rock rock, int i) in RollRocks(GetReverseColumn(col)).Select((r, i) => (r, Height - i - 1)))
-						newRocks[col, i] = rock;
+				Task.WhenAll(TiltSouth(newRocks)).Wait();
 				break;
 			case Direction.W:
-				for (int row = 0; row < Height; row++)
-					foreach ((Rock rock, int i) in RollRocks(GetRow(row)).Select((r, i) => (r, i)))
-						newRocks[i, row] = rock;
+				Task.WhenAll(TiltWest(newRocks)).Wait();
 				break;
 			case Direction.E:
-				for (int row = 0; row < Height; row++)
-					foreach ((Rock rock, int i) in RollRocks(GetReverseRow(row)).Select((r, i) => (r, Width - i - 1)))
-						newRocks[i, row] = rock;
+				Task.WhenAll(TiltEast(newRocks)).Wait();
 				break;
 			default:
 				throw new NotImplementedException();
 		}
 
 		return new(newRocks, Width, Height);
+	}
+
+	private IEnumerable<Task> TiltNorth(Rock[,] newRocks)
+	{
+		for (int col = 0; col < Width; col++)
+		{
+			int c = col;
+			yield return Task.Run(() =>
+			{
+				foreach ((Rock rock, int i) in RollRocks(GetColumn(c)).Select((c, i) => (c, i)))
+					newRocks[c, i] = rock;
+			});
+		}
+	}
+	private IEnumerable<Task> TiltSouth(Rock[,] newRocks)
+	{
+		for (int col = 0; col < Width; col++)
+		{
+			int c = col;
+			yield return Task.Run(() =>
+			{
+				foreach ((Rock rock, int i) in RollRocks(GetReverseColumn(c)).Select((c, i) => (c, Height - i - 1)))
+					newRocks[c, i] = rock;
+			});
+		}
+	}
+	private IEnumerable<Task> TiltWest(Rock[,] newRocks)
+	{
+		for (int row = 0; row < Height; row++)
+		{
+			int r = row;
+			yield return Task.Run(() =>
+			{
+				foreach ((Rock rock, int i) in RollRocks(GetRow(r)).Select((r, i) => (r, i)))
+					newRocks[i, r] = rock;
+			});
+		}
+	}
+	private IEnumerable<Task> TiltEast(Rock[,] newRocks)
+	{
+		for (int row = 0; row < Height; row++)
+		{
+			int r = row;
+			yield return Task.Run(() =>
+			{
+				foreach ((Rock rock, int i) in RollRocks(GetReverseRow(r)).Select((r, i) => (r, Width - i - 1)))
+					newRocks[i, r] = rock;
+			});
+		}
 	}
 
 	private static IEnumerable<Rock> RollRocks(IEnumerable<Rock> rocks)
