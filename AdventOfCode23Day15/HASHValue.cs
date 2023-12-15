@@ -1,12 +1,12 @@
 ﻿using System.Text;
 
 namespace AdventOfCode23Day15;
-internal class HASHAlgorithm(string input)
+internal class HASHValue(string input)
 {
 	public string String { get; } = input;
 
 	private int? hashValue = null;
-	public int HashValue => GetHashCode();
+	public int Value => GetHashCode();
 
 	public override int GetHashCode()
 	{
@@ -22,3 +22,4 @@ internal class HASHAlgorithm(string input)
 		return hashValue.Value;
 	}
 }
+
