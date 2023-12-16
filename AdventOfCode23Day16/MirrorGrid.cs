@@ -8,9 +8,6 @@ internal class MirrorGrid
 	public int Width { get; }
 	public int Height { get; }
 
-	private int? totalEnergized = null;
-	public int TotalEnergized => GetTotalEnergized();
-
 	public MirrorGrid(string[] input)
 	{
 		Height = input.Length;
@@ -22,19 +19,37 @@ internal class MirrorGrid
 				Mirrors[x, y] = c.ToMirror();
 	}
 
-	private int GetTotalEnergized()
+	public int FindMaxEnergized()
 	{
-		if (totalEnergized.HasValue) return totalEnergized.Value;
+		int max = int.MinValue;
+		(Direction direction, int start, int count)[] ranges = [(Direction.N, 0, Width), (Direction.S, 0, Width), (Direction.E, 0, Height), (Direction.W, 0, Height)];
+		foreach ((Direction direction, int start, int count) in ranges)
+			foreach (int position in Enumerable.Range(0, count))
+				max = Math.Max(max, FindTotalEnergized(direction, position));
+		return max;
+	}
+
+	public int FindTotalEnergized(Direction entryDirection, int position)
+	{
 		var pathHistory = new List<Direction>[Width, Height];
 		pathHistory.FirstFill();
-		TraceLight(0, 0, Direction.E, pathHistory);
 
-		totalEnergized = 0;
+		(int startX, int startY) = entryDirection switch
+		{
+			Direction.N => (position, Height - 1),
+			Direction.S => (position, 0),
+			Direction.E => (0, position),
+			Direction.W => (Width - 1, position),
+			_ => throw new NotImplementedException(),
+		};
+		TraceLight(startX, startY, entryDirection, pathHistory);
+
+		int totalEnergized = 0;
 		foreach (List<Direction> pointHistory in pathHistory)
 			if (pointHistory.Count > 0)
 				totalEnergized++;
 
-		return totalEnergized.Value;
+		return totalEnergized;
 	}
 
 	private void TraceLight(int xStart, int yStart, Direction initialDirection, List<Direction>[,] pathHistory)
