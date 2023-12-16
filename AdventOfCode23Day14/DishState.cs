@@ -1,4 +1,6 @@
 ﻿
+using AdventOfCode23Utilities;
+
 namespace AdventOfCode23Day14;
 internal class DishState(Rock[,] rocks, int width, int height) : IEquatable<DishState>
 {
@@ -7,36 +9,12 @@ internal class DishState(Rock[,] rocks, int width, int height) : IEquatable<Dish
 	public int Width { get; } = width;
 	public int Height { get; } = height;
 
-	public Rock GetRock(int x, int y) => Rocks[x, y];
-
-	public IEnumerable<Rock> GetColumn(int x)
-	{
-		for (int y = 0; y < Height; y++)
-			yield return GetRock(x, y);
-	}
-	public IEnumerable<Rock> GetReverseColumn(int x)
-	{
-		for (int y = Height - 1; y >= 0; y--)
-			yield return GetRock(x, y);
-	}
-
-	public IEnumerable<Rock> GetRow(int y)
-	{
-		for (int x = 0; x < Width; x++)
-			yield return GetRock(x, y);
-	}
-	public IEnumerable<Rock> GetReverseRow(int y)
-	{
-		for (int x = Width - 1; x >= 0; x--)
-			yield return GetRock(x, y);
-	}
-
 	public int CalculateTotalLoad()
 	{
 		int total = 0;
 		foreach (int x in Enumerable.Range(0, Width))
 			foreach (int y in Enumerable.Range(0, Height))
-				if (GetRock(x, y) == Rock.Round)
+				if (Rocks[x, y] == Rock.Round)
 					total += Height - y;
 		return total;
 	}
@@ -73,7 +51,7 @@ internal class DishState(Rock[,] rocks, int width, int height) : IEquatable<Dish
 			int c = col;
 			yield return Task.Run(() =>
 			{
-				foreach ((Rock rock, int i) in RollRocks(GetColumn(c)).Select((c, i) => (c, i)))
+				foreach ((Rock rock, int i) in RollRocks(Rocks.GetColumn(c)).Select((c, i) => (c, i)))
 					newRocks[c, i] = rock;
 			});
 		}
@@ -85,7 +63,7 @@ internal class DishState(Rock[,] rocks, int width, int height) : IEquatable<Dish
 			int c = col;
 			yield return Task.Run(() =>
 			{
-				foreach ((Rock rock, int i) in RollRocks(GetReverseColumn(c)).Select((c, i) => (c, Height - i - 1)))
+				foreach ((Rock rock, int i) in RollRocks(Rocks.GetReverseColumn(c)).Select((c, i) => (c, Height - i - 1)))
 					newRocks[c, i] = rock;
 			});
 		}
@@ -97,7 +75,7 @@ internal class DishState(Rock[,] rocks, int width, int height) : IEquatable<Dish
 			int r = row;
 			yield return Task.Run(() =>
 			{
-				foreach ((Rock rock, int i) in RollRocks(GetRow(r)).Select((r, i) => (r, i)))
+				foreach ((Rock rock, int i) in RollRocks(Rocks.GetRow(r)).Select((r, i) => (r, i)))
 					newRocks[i, r] = rock;
 			});
 		}
@@ -109,7 +87,7 @@ internal class DishState(Rock[,] rocks, int width, int height) : IEquatable<Dish
 			int r = row;
 			yield return Task.Run(() =>
 			{
-				foreach ((Rock rock, int i) in RollRocks(GetReverseRow(r)).Select((r, i) => (r, Width - i - 1)))
+				foreach ((Rock rock, int i) in RollRocks(Rocks.GetReverseRow(r)).Select((r, i) => (r, Width - i - 1)))
 					newRocks[i, r] = rock;
 			});
 		}

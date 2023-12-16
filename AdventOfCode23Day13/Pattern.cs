@@ -1,4 +1,6 @@
 ﻿
+using AdventOfCode23Utilities;
+
 namespace AdventOfCode23Day13;
 internal class Pattern
 {
@@ -41,7 +43,7 @@ internal class Pattern
 		});
 	}
 
-	private bool ColumnSymmetry(out int leftColumn, int smudges) => GeneralSymmetry(GetColumn, Width, out leftColumn, smudges);
+	private bool ColumnSymmetry(out int leftColumn, int smudges) => GeneralSymmetry(Values.GetColumn, Width, out leftColumn, smudges);
 
 	private Task<(bool HasSymmetry, int TopRow)> RowSymmetryAsync(int smudges)
 	{
@@ -52,7 +54,7 @@ internal class Pattern
 		});
 	}
 
-	private bool RowSymmetry(out int topRows, int smudges) => GeneralSymmetry(GetRow, Height, out topRows, smudges);
+	private bool RowSymmetry(out int topRows, int smudges) => GeneralSymmetry(Values.GetRow, Height, out topRows, smudges);
 
 	private static bool GeneralSymmetry(Func<int, IEnumerable<short>> lineGenerator, int limit, out int result, int targetSmudges)
 	{
@@ -93,19 +95,5 @@ internal class Pattern
 			}
 		}
 		return differences;
-	}
-
-	public short GetValue(int x, int y) => Values[x, y];
-
-	public IEnumerable<short> GetColumn(int x)
-	{
-		for (int y = 0; y < Height; y++)
-			yield return GetValue(x, y);
-	}
-
-	public IEnumerable<short> GetRow(int y)
-	{
-		for (int x = 0; x < Width; x++)
-			yield return GetValue(x, y);
 	}
 }
