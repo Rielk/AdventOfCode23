@@ -17,7 +17,7 @@ internal static class MirrorExtensions
 		throw new NotImplementedException();
 	}
 
-	public static List<Direction> NewDirections(this Mirror mirror, Direction initialDirection)
+	public static Direction[] NewDirections(this Mirror mirror, Direction initialDirection)
 	{
 		return (mirror, initialDirection) switch
 		{

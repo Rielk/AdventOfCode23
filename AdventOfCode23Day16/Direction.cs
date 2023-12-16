@@ -1,7 +1,13 @@
 ﻿namespace AdventOfCode23Day16;
+
+[Flags]
 internal enum Direction
 {
-	N, S, E, W
+	None = 0,
+	N = 1,
+	S = 2,
+	E = 4,
+	W = 8
 }
 
 internal static class DirectionExtensions

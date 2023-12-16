@@ -1,6 +1,4 @@
-﻿using AdventOfCode23Utilities;
-
-namespace AdventOfCode23Day16;
+﻿namespace AdventOfCode23Day16;
 internal class MirrorGrid
 {
 	private Mirror[,] Mirrors { get; }
@@ -31,8 +29,7 @@ internal class MirrorGrid
 
 	public int FindTotalEnergized(Direction entryDirection, int position)
 	{
-		var pathHistory = new List<Direction>[Width, Height];
-		pathHistory.FirstFill();
+		var pathHistory = new Direction[Width, Height];
 
 		(int startX, int startY) = entryDirection switch
 		{
@@ -45,41 +42,44 @@ internal class MirrorGrid
 		TraceLight(startX, startY, entryDirection, pathHistory);
 
 		int totalEnergized = 0;
-		foreach (List<Direction> pointHistory in pathHistory)
-			if (pointHistory.Count > 0)
+		foreach (Direction pointHistory in pathHistory)
+			if (pointHistory != Direction.None)
 				totalEnergized++;
 
 		return totalEnergized;
 	}
 
-	private void TraceLight(int xStart, int yStart, Direction initialDirection, List<Direction>[,] pathHistory)
+	private void TraceLight(int xStart, int yStart, Direction initialDirection, Direction[,] pathHistory)
 	{
-		List<(int x, int y, Direction d)> todo = [(xStart, yStart, initialDirection)];
+		LinkedList<(int x, int y, Direction d)> todo = new();
+		todo.AddFirst((xStart, yStart, initialDirection));
 
 		while (todo.Count > 0)
 		{
-			(int x, int y, Direction direction) = todo[0];
-			todo.RemoveAt(0);
+			(int x, int y, Direction direction) = todo.First!.Value;
+			todo.RemoveFirst();
 
 			Mirror mirror = Mirrors[x, y];
-			List<Direction> nextDirections = mirror.NewDirections(direction);
+			IEnumerable<Direction> nextDirections = mirror.NewDirections(direction);
 			foreach (Direction nextDirection in nextDirections)
 			{
 				if (TryAddDirectionToHistory(x, y, nextDirection, pathHistory))
 				{
 					(int newX, int newY) = nextDirection.NextPosition(x, y);
 					if (newX >= 0 && newX < Width && newY >= 0 && newY < Height)
-						todo.Add((newX, newY, nextDirection));
+						todo.AddLast((newX, newY, nextDirection));
 				}
 			}
 		}
 
-		static bool TryAddDirectionToHistory(int x, int y, Direction direction, List<Direction>[,] pathHistory)
+		static bool TryAddDirectionToHistory(int x, int y, Direction direction, Direction[,] pathHistory)
 		{
-			List<Direction> pointHistory = pathHistory[x, y];
-			if (pointHistory.Contains(direction))
+			Direction pointHistory = pathHistory[x, y];
+
+			if (pointHistory.HasFlag(direction))
 				return false;
-			pointHistory.Add(direction);
+
+			pathHistory[x, y] = pointHistory | direction;
 			return true;
 		}
 	}
