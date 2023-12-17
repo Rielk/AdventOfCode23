@@ -19,8 +19,8 @@ internal class CityMap
 				CoolingValues[x, y] = c - '0';
 	}
 
-	internal int FindLowestHeatLoss() => FindLowestHeatLoss(new(0, 0), new(Width - 1, Height - 1));
-	internal int FindLowestHeatLoss(Location start, Location end)
+	internal int FindLowestHeatLoss(int minSteps, int maxSteps) => FindLowestHeatLoss(new(0, 0), new(Width - 1, Height - 1), minSteps, maxSteps);
+	internal int FindLowestHeatLoss(Location start, Location end, int minSteps, int maxSteps)
 	{
 		var visited = new Direction[Width, Height];
 		visited[start.X, start.Y] = Direction.N | Direction.S | Direction.E | Direction.W;
@@ -38,7 +38,7 @@ internal class CityMap
 				return currentNode.Weight;
 
 			if (currentNode.Location != start)
-				if (!visited.TryGetValue(currentNode.Location.X, currentNode.Location.Y, out Direction gh) || gh.HasFlag(currentNode.ApproachDirection))
+				if (!visited.TryGetValue(currentNode.Location.X, currentNode.Location.Y, out Direction alreadyVisitied) || alreadyVisitied.HasFlag(currentNode.ApproachDirection))
 					continue;
 
 			visited[currentNode.Location.X, currentNode.Location.Y] |= currentNode.ApproachDirection;
@@ -46,15 +46,18 @@ internal class CityMap
 			foreach (Direction nextDirection in currentNode.ApproachDirection.PerpendicularDirections())
 			{
 				int nextWeight = currentNode.Weight;
-				foreach (int stepSize in Enumerable.Range(1, 3))
+				foreach (int stepSize in Enumerable.Range(1, maxSteps))
 				{
 					Location nextLocation = currentNode.Location.FollowDirection(nextDirection, stepSize);
 
 					if (CoolingValues.TryGetValue(nextLocation.X, nextLocation.Y, out int coolingValue))
 					{
 						nextWeight += coolingValue;
-						//if (!visited.TryGetValue(nextLocation.X, nextLocation.Y, out Direction isVisited) || isVisited.HasFlag(nextDirection))
-						//	continue;
+
+						if (stepSize < minSteps)
+							continue;
+						if (!visited.TryGetValue(nextLocation.X, nextLocation.Y, out Direction isVisited) || isVisited.HasFlag(nextDirection))
+							continue;
 
 						TentativeDistance newTentative = new(nextLocation, nextDirection, nextWeight);
 						tentatives.Add(newTentative);

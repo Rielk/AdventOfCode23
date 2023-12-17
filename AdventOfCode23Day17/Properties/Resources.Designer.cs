@@ -94,8 +94,11 @@ namespace AdventOfCode23Day17.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 112999
-        ///911111.
+        ///   Looks up a localized string similar to 111111111111
+        ///999999999991
+        ///999999999991
+        ///999999999991
+        ///999999999991.
         /// </summary>
         internal static string InputTest2 {
             get {
