@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode23Utilities;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace AdventOfCode23Utilities;
 public static class ArrayExtensions
 {
 	public static IEnumerable<T> GetColumn<T>(this T[,] array, int x)
@@ -48,5 +50,23 @@ public static class ArrayExtensions
 		for (int x = 0; x < listArray.GetLength(0); x++)
 			for (int y = 0; y < listArray.GetLength(1); y++)
 				listArray[x, y] = [];
+	}
+
+	public static void FirstFill<T>(this T[,] array, T value)
+	{
+		for (int x = 0; x < array.GetLength(0); x++)
+			for (int y = 0; y < array.GetLength(1); y++)
+				array[x, y] = value;
+	}
+
+	public static bool TryGetValue<T>(this T[,] array, int x, int y, [NotNullWhen(true)] out T? value, T? defaultValue = default) where T : notnull
+	{
+		if (x >= 0 && x < array.GetLength(0) && y >= 0 && y < array.GetLength(1))
+		{
+			value = array[x, y];
+			return true;
+		}
+		value = defaultValue;
+		return false;
 	}
 }
