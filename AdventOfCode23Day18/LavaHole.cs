@@ -2,51 +2,41 @@
 using AdventOfCode23EnclosedSpace;
 
 namespace AdventOfCode23Day18;
-internal class LavaHole
+internal class LavaHole(List<PlanLine> plan)
 {
-	private int? enclosedArea = null;
+	private long? enclosedArea = null;
 
-	public int EnclosedArea => GetEnclosedArea();
+	public long EnclosedArea => GetEnclosedArea();
 
-	private List<Location> Trench { get; }
-	private Dictionary<Location, PathDirection> TrenchShape { get; }
+	public List<PlanLine> Plan { get; } = [.. plan];
 
-	public LavaHole(IEnumerable<PlanLine> plan)
+	public int TrenchSize { get; } = plan.Select(p => p.Length).Sum();
+
+	internal long GetEnclosedArea()
 	{
-		Trench = [];
-		TrenchShape = [];
+		if (enclosedArea.HasValue) return enclosedArea.Value;
+
+		enclosedArea = FindTrench().FindEnclosedArea();
+		enclosedArea += TrenchSize;
+		return enclosedArea.Value;
+	}
+
+	public IEnumerable<(Location, PathDirection)> FindTrench()
+	{
+
 		Location currentLocation = new(0, 0);
-		Direction lastDirection = Direction.Start;
+		Direction lastDirection = Plan[^1].Direction;
 		foreach (PlanLine step in plan)
 		{
 			foreach (int i in Enumerable.Range(0, step.Length))
 			{
-				Trench.Add(currentLocation);
 				Direction nextDirection = step.Direction;
-				if (lastDirection != Direction.Start)
-				{
-					PathDirection trenchShape = lastDirection.WithOutDirection(nextDirection);
-					TrenchShape.Add(currentLocation, trenchShape);
-				}
+				PathDirection trenchShape = lastDirection.WithOutDirection(nextDirection);
+				if (trenchShape.IsHorizontal())
+					yield return (currentLocation, trenchShape);
 				currentLocation = currentLocation.ApplyDirection(step.Direction);
 				lastDirection = nextDirection;
 			}
 		}
-		TrenchShape.Add(new(0, 0), lastDirection.WithOutDirection(plan.First().Direction));
-	}
-
-	internal int GetEnclosedArea()
-	{
-		if (enclosedArea.HasValue) return enclosedArea.Value;
-
-		enclosedArea = Trench.FindEnclosedArea(GetTrenchShape, true);
-		return enclosedArea.Value;
-	}
-
-	private PathDirection GetTrenchShape(Location location)
-	{
-		if (TrenchShape.TryGetValue(location, out PathDirection shape))
-			return shape;
-		return PathDirection.None;
 	}
 }

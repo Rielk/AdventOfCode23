@@ -6,7 +6,7 @@ string input = Resources.Input1;
 Map map = new(input.Split(Environment.NewLine));
 
 int stepsToFurthestPartOfLoop = map.Loop.Count / 2;
-int enclosedArea = map.FindEnclosedArea();
+long enclosedArea = map.FindEnclosedArea();
 
 Console.WriteLine($"Steps to furthest part of loop: {stepsToFurthestPartOfLoop}");
 Console.WriteLine();

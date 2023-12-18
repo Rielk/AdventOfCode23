@@ -67,10 +67,10 @@ internal class Map
 
 
 
-	public int FindEnclosedArea()
+	public long FindEnclosedArea()
 	{
 		List<Location> path = GetLoop();
 
-		return path.FindEnclosedArea(GetPipeDirection, false);
+		return path.FindEnclosedArea(GetPipeDirection);
 	}
 }
