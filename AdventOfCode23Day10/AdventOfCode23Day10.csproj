@@ -26,4 +26,8 @@
     <Folder Include="Resources\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AdventOfCode23EnclosedSpace\AdventOfCode23EnclosedSpace.csproj" />
+  </ItemGroup>
+
 </Project>

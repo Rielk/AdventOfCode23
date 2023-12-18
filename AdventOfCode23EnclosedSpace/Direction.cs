@@ -1,12 +1,12 @@
-﻿namespace AdventOfCode23Day10;
-internal enum Direction : byte
+﻿namespace AdventOfCode23EnclosedSpace;
+public enum Direction
 {
 	N, S, E, W,
 	DeadEnd,
 	Start
 }
 
-internal static class Directions
+public static class Directions
 {
 	public static IEnumerable<Direction> Cardinal
 	{

@@ -1,5 +1,5 @@
-﻿namespace AdventOfCode23Day10;
-internal readonly record struct Location(int X, int Y)
+﻿namespace AdventOfCode23EnclosedSpace;
+public readonly record struct Location(int X, int Y)
 {
 	public static Location operator +(Location a, Location b) => new(a.X + b.X, a.Y + b.Y);
 
