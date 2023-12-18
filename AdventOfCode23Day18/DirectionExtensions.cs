@@ -1,6 +1,4 @@
-﻿using AdventOfCode23EnclosedSpace;
-
-namespace AdventOfCode23Day18;
+﻿namespace AdventOfCode23Day18;
 internal static class DirectionExtensions
 {
 	public static Direction ToDirection(this char c) => c switch

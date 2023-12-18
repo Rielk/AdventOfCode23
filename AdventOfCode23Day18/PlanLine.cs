@@ -1,4 +1,4 @@
-﻿using AdventOfCode23EnclosedSpace;
+﻿using AdventOfCode23Day18;
 
 internal class PlanLine
 {

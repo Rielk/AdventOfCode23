@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode23EnclosedSpace;
+﻿namespace AdventOfCode23Day18;
 public enum Direction
 {
 	N, S, E, W,

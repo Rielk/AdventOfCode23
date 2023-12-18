@@ -3,7 +3,7 @@
 namespace AdventOfCode23Day10;
 internal class Map
 {
-	private PathDirection[,] Pipes { get; }
+	private PipeDirection[,] Pipes { get; }
 	private int Width { get; }
 	private int Height { get; }
 
@@ -17,21 +17,21 @@ internal class Map
 		Start = new(-1, -1);
 		Width = characters.First().Count();
 		Height = characters.Count();
-		Pipes = new PathDirection[Width, Height];
+		Pipes = new PipeDirection[Width, Height];
 		foreach ((IEnumerable<char> lineChars, int y) in characters.Select((lineChars, y) => (lineChars, y)))
 			foreach ((char c, int x) in lineChars.Select((c, x) => (c, x)))
 			{
-				PathDirection pipeDirection = c.ToPipeDirection();
+				var pipeDirection = c.ToPipeDirection();
 				Pipes[x, y] = pipeDirection;
-				if (pipeDirection == PathDirection.Start)
+				if (pipeDirection == PipeDirection.Start)
 					Start = new(x, y);
 			}
 	}
 
-	public PathDirection GetPipeDirection(Location location)
+	public PipeDirection GetPipeDirection(Location location)
 	{
 		if (location.X < 0 || location.X >= Width || location.Y < 0 || location.Y >= Height)
-			return PathDirection.None;
+			return PipeDirection.None;
 		return Pipes[location.X, location.Y];
 	}
 
@@ -49,7 +49,7 @@ internal class Map
 			{
 				path.Add(location);
 				location = location.ApplyDirection(direction);
-				PathDirection pipeDirection = GetPipeDirection(location);
+				PipeDirection pipeDirection = GetPipeDirection(location);
 				nextDirection = pipeDirection.NextDirection(direction);
 				if (nextDirection == Direction.DeadEnd)
 					break;
@@ -71,6 +71,6 @@ internal class Map
 	{
 		List<Location> path = GetLoop();
 
-		return PicksShoelace.FindEnclosedArea(path);
+		return PicksShoelace.FindEnclosedArea(path.Select(p => p.ToTuple()));
 	}
 }

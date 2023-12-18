@@ -19,13 +19,13 @@ internal class LavaHole(List<PlanLine> plan)
 		return enclosedArea.Value;
 	}
 
-	public IEnumerable<Location> FindTrench()
+	public IEnumerable<(int x, int y)> FindTrench()
 	{
 
 		Location currentLocation = new(0, 0);
 		foreach (PlanLine step in plan)
 		{
-			yield return currentLocation;
+			yield return currentLocation.ToTuple();
 			currentLocation = currentLocation.ApplyDirection(step.Direction, step.Length);
 		}
 	}

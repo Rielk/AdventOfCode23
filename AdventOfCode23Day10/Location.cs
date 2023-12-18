@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode23EnclosedSpace;
+﻿namespace AdventOfCode23Day10;
 public readonly record struct Location(int X, int Y)
 {
 	public static Location operator +(Location a, Location b) => new(a.X + b.X, a.Y + b.Y);
@@ -11,4 +11,6 @@ public readonly record struct Location(int X, int Y)
 		Direction.W => new(X - amount, Y),
 		_ => throw new NotImplementedException(),
 	};
+
+	internal (int x, int y) ToTuple() => (X, Y);
 }

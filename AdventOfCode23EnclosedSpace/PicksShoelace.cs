@@ -2,14 +2,14 @@
 public static class PicksShoelace
 {
 
-	public static long FindEnclosedArea(IEnumerable<Location> path) => FindEnclosedArea(path, out _);
-	public static long FindEnclosedArea(IEnumerable<Location> path, out long boundryPoints)
+	public static long FindEnclosedArea(IEnumerable<(int x, int y)> path) => FindEnclosedArea(path, out _);
+	public static long FindEnclosedArea(IEnumerable<(int x, int y)> path, out long boundryPoints)
 	{
 		long total = 0;
-		Location first = path.First();
-		Location previous = first;
+		(int x, int y) first = path.First();
+		(int x, int y) previous = first;
 		long tmpBoundryPoints = 0;
-		foreach (Location next in path.Skip(1))
+		foreach ((int x, int y) next in path.Skip(1))
 		{
 			ProcessPointPair(previous, next);
 			previous = next;
@@ -21,22 +21,22 @@ public static class PicksShoelace
 		boundryPoints = tmpBoundryPoints;
 		return i;
 
-		void ProcessPointPair(Location previous, Location next)
+		void ProcessPointPair((int x, int y) previous, (int x, int y) next)
 		{
 			tmpBoundryPoints += CountPointsOnLine(previous, next) - 1;
-			total += ((long)previous.X * next.Y) - ((long)previous.Y * next.X);
+			total += ((long)previous.x * next.y) - ((long)previous.y * next.x);
 		}
 	}
 
-	private static int CountPointsOnLine(Location previous, Location next)
+	private static int CountPointsOnLine((int x, int y) previous, (int x, int y) next)
 	{
 		int count = 0;
-		if (next.X == previous.X) return Math.Abs(next.Y - previous.Y) + 1;
-		if (next.Y == previous.Y) return Math.Abs(next.X - previous.X) + 1;
+		if (next.x == previous.x) return Math.Abs(next.y - previous.y) + 1;
+		if (next.y == previous.y) return Math.Abs(next.x - previous.x) + 1;
 
-		double m = (double)(previous.Y - next.Y) / (previous.X - next.X);
-		double c = previous.Y - (m * next.X);
-		foreach (int x in Enumerable.Range(previous.X, Math.Abs(next.X - previous.X)))
+		double m = (double)(previous.y - next.y) / (previous.x - next.x);
+		double c = previous.y - (m * next.x);
+		foreach (int x in Enumerable.Range(previous.x, Math.Abs(next.x - previous.x)))
 		{
 			double doubleY = (m * x) + c;
 			int intY = (int)doubleY;

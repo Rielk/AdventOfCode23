@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode23EnclosedSpace;
+﻿using AdventOfCode23Day18;
+
+namespace AdventOfCode23EnclosedSpace;
 public enum PathDirection
 {
 	NS, WE, NE, NW, SW, SE, None, Start
