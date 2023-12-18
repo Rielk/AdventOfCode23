@@ -23,7 +23,7 @@ internal class LavaHole(List<PlanLine> plan)
 	{
 
 		Location currentLocation = new(0, 0);
-		foreach (PlanLine step in plan)
+		foreach (PlanLine step in Plan)
 		{
 			yield return currentLocation.ToTuple();
 			currentLocation = currentLocation.ApplyDirection(step.Direction, step.Length);

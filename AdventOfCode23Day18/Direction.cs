@@ -1,21 +1,17 @@
 ﻿namespace AdventOfCode23Day18;
 public enum Direction
 {
-	N, S, E, W,
-	DeadEnd,
-	Start
+	U, D, R, L
 }
 
-public static class Directions
+internal static class DirectionExtensions
 {
-	public static IEnumerable<Direction> Cardinal
+	public static Direction ToDirection(this char c) => c switch
 	{
-		get
-		{
-			yield return Direction.N;
-			yield return Direction.S;
-			yield return Direction.E;
-			yield return Direction.W;
-		}
-	}
+		'U' => Direction.U,
+		'D' => Direction.D,
+		'L' => Direction.L,
+		'R' => Direction.R,
+		_ => throw new NotImplementedException()
+	};
 }

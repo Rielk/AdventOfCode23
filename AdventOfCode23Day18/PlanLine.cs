@@ -17,10 +17,10 @@ internal class PlanLine
 
 		Direction = hexInput[5] switch
 		{
-			'0' => Direction.E,
-			'1' => Direction.S,
-			'2' => Direction.W,
-			'3' => Direction.N,
+			'0' => Direction.R,
+			'1' => Direction.D,
+			'2' => Direction.L,
+			'3' => Direction.U,
 			_ => throw new NotImplementedException()
 		};
 
