@@ -74,49 +74,4 @@ public static class PipeDirectionExtensions
 		PathDirection.SE => true,
 		_ => throw new NotImplementedException(),
 	};
-
-
-	public static long FindEnclosedArea(this IEnumerable<Location> path, Func<Location, PathDirection> getPathDirection)
-	{
-		return FindEnclosedArea(ExpandEnumerable());
-
-		IEnumerable<(Location location, PathDirection pathDirection)> ExpandEnumerable()
-		{
-			foreach (Location location in path)
-				yield return (location, getPathDirection(location));
-		}
-	}
-	public static long FindEnclosedArea(this IEnumerable<(Location location, PathDirection pathDirection)> path)
-	{
-		long count = 0;
-
-		IEnumerable<IGrouping<int, (Location location, PathDirection pathDirection)>> yIntersects = path.Where(t => t.pathDirection.IsHorizontal()).GroupBy(t => t.location.X);
-		foreach (IGrouping<int, (Location location, PathDirection pathDirection)> yIntersect in yIntersects)
-		{
-			int x = yIntersect.Key;
-			var yValues = yIntersect.OrderBy(t => t.location.Y).ToList();
-			bool inside = true;
-			foreach (((Location location, PathDirection pathDirection) First, (Location location, PathDirection pathDirection) Second) in yValues.Zip(yValues.Skip(1)))
-			{
-				if (First.pathDirection is PathDirection.SE)
-				{
-					if (Second.pathDirection is PathDirection.NE)
-						inside = !inside;
-					continue;
-				}
-
-				if (First.pathDirection is PathDirection.SW)
-				{
-					if (Second.pathDirection is PathDirection.NW)
-						inside = !inside;
-					continue;
-				}
-
-				if (inside)
-					count += Second.location.Y - First.location.Y - 1;
-				inside = !inside;
-			}
-		}
-		return count;
-	}
 }

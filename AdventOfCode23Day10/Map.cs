@@ -71,6 +71,6 @@ internal class Map
 	{
 		List<Location> path = GetLoop();
 
-		return path.FindEnclosedArea(GetPipeDirection);
+		return PicksShoelace.FindEnclosedArea(path);
 	}
 }

@@ -10,33 +10,23 @@ internal class LavaHole(List<PlanLine> plan)
 
 	public List<PlanLine> Plan { get; } = [.. plan];
 
-	public int TrenchSize { get; } = plan.Select(p => p.Length).Sum();
-
 	internal long GetEnclosedArea()
 	{
 		if (enclosedArea.HasValue) return enclosedArea.Value;
 
-		enclosedArea = FindTrench().FindEnclosedArea();
-		enclosedArea += TrenchSize;
+		enclosedArea = PicksShoelace.FindEnclosedArea(FindTrench(), out long trenchSize);
+		enclosedArea += trenchSize;
 		return enclosedArea.Value;
 	}
 
-	public IEnumerable<(Location, PathDirection)> FindTrench()
+	public IEnumerable<Location> FindTrench()
 	{
 
 		Location currentLocation = new(0, 0);
-		Direction lastDirection = Plan[^1].Direction;
 		foreach (PlanLine step in plan)
 		{
-			foreach (int i in Enumerable.Range(0, step.Length))
-			{
-				Direction nextDirection = step.Direction;
-				PathDirection trenchShape = lastDirection.WithOutDirection(nextDirection);
-				if (trenchShape.IsHorizontal())
-					yield return (currentLocation, trenchShape);
-				currentLocation = currentLocation.ApplyDirection(step.Direction);
-				lastDirection = nextDirection;
-			}
+			yield return currentLocation;
+			currentLocation = currentLocation.ApplyDirection(step.Direction, step.Length);
 		}
 	}
 }
