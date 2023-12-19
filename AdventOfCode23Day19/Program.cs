@@ -3,23 +3,22 @@ using AdventOfCode23Day19.Properties;
 
 string[] inputs = Resources.Input1.Split(Environment.NewLine + Environment.NewLine);
 
-List<WorkFlow> workFlows = [];
 WorkFlow? initialWorkFlow = null;
 foreach (string line in inputs[0].Split(Environment.NewLine))
 {
-	WorkFlow workFlow = new(line);
-	workFlows.Add(workFlow);
+	var workFlow = WorkFlow.Create(line);
 	if (workFlow.Id == "in")
 		initialWorkFlow = workFlow;
 }
 if (initialWorkFlow == null)
 	throw new Exception("Couldn't find initial WorkFlow");
 
-List<Part> parts = [];
-foreach (string line in inputs[1].Split(Environment.NewLine))
-	parts.Add(new(line));
+IEnumerable<Part> parts = inputs[1].Split(Environment.NewLine).Select(line => new Part(line)).ToArray();
 
 IEnumerable<Part> acceptedParts = initialWorkFlow.ApplyTo(parts);
 int totalledTotals = acceptedParts.Select(p => p.Total).Sum();
+long possibleParts = initialWorkFlow.ApplyTo(new PartRange(1, 4000));
 
 Console.WriteLine($"Total of totals: {totalledTotals}");
+Console.WriteLine();
+Console.WriteLine($"Total possible parts: {possibleParts}");

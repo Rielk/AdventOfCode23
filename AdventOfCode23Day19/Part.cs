@@ -1,4 +1,5 @@
-﻿namespace AdventOfCode23Day19;
+﻿
+namespace AdventOfCode23Day19;
 internal class Part
 {
 	public int X { get; }

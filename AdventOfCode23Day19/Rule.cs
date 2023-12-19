@@ -70,8 +70,17 @@ internal class Rule
 		return compare;
 	}
 
-	private enum PartProperty
-	{ X, M, A, S }
+	internal void TestPartRange(PartRange parts, out PartRange? trueRange, out PartRange? falseRange)
+	{
+		(PartRange? lowerRange, PartRange? upperRange) = parts.Split(Property, Limit, Condition == ConditionDirection.GreaterThan, Condition == ConditionDirection.LessThan);
+		(trueRange, falseRange) = Condition switch
+		{
+			ConditionDirection.GreaterThan => (upperRange, lowerRange),
+			ConditionDirection.LessThan => (lowerRange, upperRange),
+			_ => throw new NotImplementedException(),
+		};
+	}
+
 	private enum ConditionDirection
 	{ GreaterThan, LessThan }
 }
