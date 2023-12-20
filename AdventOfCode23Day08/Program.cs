@@ -4,7 +4,7 @@ using AdventOfCode23Day08.Properties;
 string input = Resources.Input1;
 
 string[] split = input.Split(Environment.NewLine + Environment.NewLine);
-InfiniteLoop<Direction> route = new(split[0].Select(c => c.ToDirection()));
+InfiniteLoop<Direction> route = new(split[0].Select(c => c.ToDirection()).ToArray());
 
 IEnumerable<NodeFrame> frames = EnumerateFrames(split[1]);
 static IEnumerable<NodeFrame> EnumerateFrames(string input)
