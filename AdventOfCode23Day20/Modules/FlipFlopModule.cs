@@ -3,15 +3,21 @@ internal class FlipFlopModule(Network network, string id) : Module(network, id)
 {
 	private bool On { get; set; } = false;
 
-	protected override void RegisterInPulse(Module sender, Pulse pulse)
+	protected override Pulse? PickOutPulse(Module sender, Pulse pulse)
 	{
 		if (pulse == Pulse.Low)
 		{
 			On = !On;
 			if (On)
-				StackOutPulse(Pulse.High);
+				return Pulse.High;
 			else
-				StackOutPulse(Pulse.Low);
+				return Pulse.Low;
 		}
+		return null;
+	}
+
+	internal override void Reset()
+	{
+		On = false;
 	}
 }

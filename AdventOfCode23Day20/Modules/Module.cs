@@ -4,6 +4,9 @@ internal abstract class Module
 {
 	private Network Network { get; }
 
+	public int LowPulses { get; private set; }
+	public int HighPulses { get; private set; }
+
 	public string Id { get; }
 
 	private Module[]? outputs = null;
@@ -37,12 +40,23 @@ internal abstract class Module
 	protected virtual void RegisterInput(Module module) { }
 
 	protected void StackOutPulse(Pulse pulse) => Network.AddPulseToStack(this, pulse);
-	internal int HandleOutPulse(Pulse pulse)
+	internal void HandleOutPulse(Pulse pulse)
 	{
 		foreach (Module output in Outputs)
 			output.RegisterInPulse(this, pulse);
-		return Outputs.Length;
 	}
 
-	protected abstract void RegisterInPulse(Module sender, Pulse pulse);
+	protected void RegisterInPulse(Module sender, Pulse pulse)
+	{
+		if (pulse == Pulse.High)
+			HighPulses++;
+		else if (pulse == Pulse.Low)
+			LowPulses++;
+		Pulse? outPulse = PickOutPulse(sender, pulse);
+		if (outPulse.HasValue)
+			StackOutPulse(outPulse.Value);
+	}
+
+	protected abstract Pulse? PickOutPulse(Module sender, Pulse pulse);
+	internal abstract void Reset();
 }

@@ -1,4 +1,5 @@
 ﻿using AdventOfCode23Day20;
+using AdventOfCode23Day20.Modules;
 using AdventOfCode23Day20.Properties;
 
 string input = Resources.Input1;
@@ -13,4 +14,16 @@ int highPulses = network.HighPulses;
 
 long crossOfPulses = lowPulses * highPulses;
 
+Module moduleRx = network.GetModule("rx");
+network.Reset();
+int pressesForRXLow = 0;
+
+while (moduleRx.LowPulses <= 0)
+{
+	network.PressButton();
+	pressesForRXLow++;
+}
+
 Console.WriteLine($"Low pulses sent multiplied by High pulses sent: {crossOfPulses}");
+Console.WriteLine();
+Console.WriteLine($"Presses required for a single low pulse to Rx: {pressesForRXLow}");

@@ -6,14 +6,21 @@ internal class ConjunctionModule(Network network, string id) : Module(network, i
 	protected override void RegisterInput(Module module)
 	{
 		LastRecieved.Add(module, Pulse.Low);
+		base.RegisterInput(module);
 	}
 
-	protected override void RegisterInPulse(Module sender, Pulse pulse)
+	protected override Pulse? PickOutPulse(Module sender, Pulse pulse)
 	{
 		LastRecieved[sender] = pulse;
 		if (LastRecieved.Values.All(p => p == Pulse.High))
-			StackOutPulse(Pulse.Low);
+			return Pulse.Low;
 		else
-			StackOutPulse(Pulse.High);
+			return Pulse.High;
+	}
+
+	internal override void Reset()
+	{
+		foreach (Module module in LastRecieved.Keys)
+			LastRecieved[module] = Pulse.Low;
 	}
 }
