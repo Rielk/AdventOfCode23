@@ -4,6 +4,7 @@ namespace AdventOfCode23Day20;
 internal class Network
 {
 	private ButtonModule Button { get; }
+	public int ButtonPresses { get; private set; }
 
 	public int LowPulses => Modules.Values.Select(m => m.LowPulses).Sum();
 	public int HighPulses => Modules.Values.Select(m => m.HighPulses).Sum();
@@ -52,7 +53,11 @@ internal class Network
 		}
 	}
 
-	public void PressButton() => Button.Press();
+	public void PressButton()
+	{
+		ButtonPresses++;
+		Button.Press();
+	}
 
 	public Module GetModule(string Id) => Modules[Id];
 

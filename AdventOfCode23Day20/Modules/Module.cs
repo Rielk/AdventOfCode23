@@ -1,5 +1,4 @@
-﻿
-namespace AdventOfCode23Day20.Modules;
+﻿namespace AdventOfCode23Day20.Modules;
 internal abstract class Module
 {
 	private Network Network { get; }
@@ -7,10 +6,13 @@ internal abstract class Module
 	public int LowPulses { get; private set; }
 	public int HighPulses { get; private set; }
 
+	private int? FirstHigh { get; set; }
+
 	public string Id { get; }
 
-	private Module[]? outputs = null;
-	private Module[] Outputs
+	protected Module[]? outputs = null;
+
+	protected Module[] Outputs
 	{
 		get
 		{
@@ -26,6 +28,9 @@ internal abstract class Module
 		}
 	}
 
+	private readonly List<Module> Inputs = [];
+	public Module[] ReadInputs => Inputs.ToArray();
+
 	protected Module(Network network, string id)
 	{
 		Network = network;
@@ -37,11 +42,16 @@ internal abstract class Module
 		Outputs = modules;
 	}
 
-	protected virtual void RegisterInput(Module module) { }
+	protected virtual void RegisterInput(Module module)
+	{
+		Inputs.Add(module);
+	}
 
 	protected void StackOutPulse(Pulse pulse) => Network.AddPulseToStack(this, pulse);
 	internal void HandleOutPulse(Pulse pulse)
 	{
+		if (pulse is Pulse.High && !FirstHigh.HasValue)
+			FirstHigh = Network.ButtonPresses;
 		foreach (Module output in Outputs)
 			output.RegisterInPulse(this, pulse);
 	}
@@ -53,10 +63,18 @@ internal abstract class Module
 		else if (pulse == Pulse.Low)
 			LowPulses++;
 		Pulse? outPulse = PickOutPulse(sender, pulse);
+
 		if (outPulse.HasValue)
 			StackOutPulse(outPulse.Value);
 	}
 
 	protected abstract Pulse? PickOutPulse(Module sender, Pulse pulse);
 	internal abstract void Reset();
+
+	internal int FindFirstHigh()
+	{
+		while (!FirstHigh.HasValue)
+			Network.PressButton();
+		return FirstHigh.Value;
+	}
 }

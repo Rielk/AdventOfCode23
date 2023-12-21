@@ -1,4 +1,5 @@
-﻿namespace AdventOfCode23Day20.Modules;
+﻿
+namespace AdventOfCode23Day20.Modules;
 internal class FlipFlopModule(Network network, string id) : Module(network, id)
 {
 	private bool On { get; set; } = false;

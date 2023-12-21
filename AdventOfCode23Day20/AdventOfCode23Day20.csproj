@@ -26,4 +26,8 @@
     <Folder Include="Resources\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AdventOfCode23Factors\AdventOfCode23Factors.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,7 @@
 ﻿using AdventOfCode23Day20;
 using AdventOfCode23Day20.Modules;
 using AdventOfCode23Day20.Properties;
+using AdventOfCode23Factors;
 
 string input = Resources.Input1;
 
@@ -14,15 +15,12 @@ int highPulses = network.HighPulses;
 
 long crossOfPulses = lowPulses * highPulses;
 
+//Part 2 feels ugly and unsatisfying, but I can't think of the general sollution right now.
 Module moduleRx = network.GetModule("rx");
-network.Reset();
-int pressesForRXLow = 0;
-
-while (moduleRx.LowPulses <= 0)
-{
-	network.PressButton();
-	pressesForRXLow++;
-}
+Module rxInput = moduleRx.ReadInputs[0];
+Module[] inverters = rxInput.ReadInputs;
+int[] firstHigh = inverters.Select(i => i.FindFirstHigh()).ToArray();
+long pressesForRXLow = LCM.Find(firstHigh.Select(i => (long)i));
 
 Console.WriteLine($"Low pulses sent multiplied by High pulses sent: {crossOfPulses}");
 Console.WriteLine();
