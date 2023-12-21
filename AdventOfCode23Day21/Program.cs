@@ -5,7 +5,6 @@ string input = Resources.Input1;
 
 Garden garden = new(input.Split(Environment.NewLine));
 
-garden.TakeSteps(64);
-int totalPossible = garden.TotalPossible;
+int totalPossible = garden.PossibleLocationsAfterSteps(64);
 
 Console.WriteLine($"Garden Plots the Elf could reach:{totalPossible}");

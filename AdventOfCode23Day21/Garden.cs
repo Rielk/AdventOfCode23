@@ -15,18 +15,13 @@ internal class Garden
 
 	public int Steps { get; private set; } = 0;
 
-	public int TotalPossible
-	{
-		get
-		{
-			int count = 0;
-			foreach (bool value in StandOptions)
-				if (value)
-					count++;
-			return count;
+	public int TotalPossible => PossibilityHistory[^1];
+	public List<int> PossibilityHistory { get; } = [1];
 
-		}
-	}
+	public bool MaxesFound { get; private set; } = false;
+	public int EvenMax { get; private set; } = -1;
+	public int OddMax { get; private set; } = -1;
+	public int MaxAt { get; private set; } = -1;
 
 	public const char StartChar = 'S';
 	public Garden(string[] input)
@@ -46,10 +41,14 @@ internal class Garden
 		StandOptions[Start.X, Start.Y] = true;
 	}
 
-	internal void TakeSteps(int steps)
+	public int PossibleLocationsAfterSteps(int steps)
 	{
-		foreach (int _ in Enumerable.Range(0, steps))
+		while (!MaxesFound && PossibilityHistory.Count < steps + 1)
 			TakeStep();
+		if (MaxesFound && steps >= MaxAt)
+			return IsEven(steps) ? EvenMax : OddMax;
+		else
+			return PossibilityHistory[steps];
 	}
 
 	private void TakeStep()
@@ -73,5 +72,37 @@ internal class Garden
 			}
 		StandOptions = newStandOptions;
 		Steps++;
+
+
+		int possibleCount = CountPossible();
+		if (PossibilityHistory.Count >= 2 && possibleCount == PossibilityHistory[^2])
+			SetMaxesFromHistory();
+		else
+			PossibilityHistory.Add(possibleCount);
+	}
+
+	private void SetMaxesFromHistory()
+	{
+		MaxesFound = true;
+		int last = PossibilityHistory[^1];
+		int secondLast = PossibilityHistory[^2];
+
+		if (IsEven(last))
+			(OddMax, EvenMax) = (secondLast, last);
+		else
+			(OddMax, EvenMax) = (last, secondLast);
+
+		MaxAt = PossibilityHistory.Count - 1;
+	}
+
+	private static bool IsEven(int i) => i % 2 == 0;
+
+	private int CountPossible()
+	{
+		int count = 0;
+		foreach (bool value in StandOptions)
+			if (value)
+				count++;
+		return count;
 	}
 }
