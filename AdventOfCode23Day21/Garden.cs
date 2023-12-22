@@ -41,17 +41,39 @@ internal class Garden
 		StandOptions[Start.X, Start.Y] = true;
 	}
 
-	public int PossibleLocationsAfterSteps(int steps)
+	private Garden(Tile[,] tiles, Location start)
 	{
+		Tiles = tiles;
+		Width = tiles.GetLength(0);
+		Height = tiles.GetLength(1);
+		Start = start;
+		StandOptions = new bool[Width, Height];
+		StandOptions[Start.X, Start.Y] = true;
+	}
+
+	internal Garden WithStart(Location c)
+	{
+		return new(Tiles, c);
+	}
+
+	public void FindMaxes()
+	{
+		while (!MaxesFound) TakeStep();
+	}
+
+	public int CountLocationsAfterSteps(int steps)
+	{
+		if (steps < 0) return 0;
+
 		while (!MaxesFound && PossibilityHistory.Count < steps + 1)
 			TakeStep();
 		if (MaxesFound && steps >= MaxAt)
-			return IsEven(steps) ? EvenMax : OddMax;
+			return Ints.IsEven(steps) ? EvenMax : OddMax;
 		else
 			return PossibilityHistory[steps];
 	}
 
-	private void TakeStep()
+	private bool TakeStep()
 	{
 		bool[,] newStandOptions = new bool[Width, Height];
 		foreach (int y in Enumerable.Range(0, Height))
@@ -76,9 +98,15 @@ internal class Garden
 
 		int possibleCount = CountPossible();
 		if (PossibilityHistory.Count >= 2 && possibleCount == PossibilityHistory[^2])
+		{
 			SetMaxesFromHistory();
+			return false;
+		}
 		else
+		{
 			PossibilityHistory.Add(possibleCount);
+			return true;
+		}
 	}
 
 	private void SetMaxesFromHistory()
@@ -87,15 +115,13 @@ internal class Garden
 		int last = PossibilityHistory[^1];
 		int secondLast = PossibilityHistory[^2];
 
-		if (IsEven(last))
+		if (Ints.IsEven(last))
 			(OddMax, EvenMax) = (secondLast, last);
 		else
 			(OddMax, EvenMax) = (last, secondLast);
 
 		MaxAt = PossibilityHistory.Count - 1;
 	}
-
-	private static bool IsEven(int i) => i % 2 == 0;
 
 	private int CountPossible()
 	{
@@ -104,5 +130,18 @@ internal class Garden
 			if (value)
 				count++;
 		return count;
+	}
+
+	internal void AssertAssumption()
+	{
+		int midWidth = Width / 2;
+		int midHeight = Height / 2;
+		if (Tiles.GetColumn(midWidth).Any(t => t == Tile.Rock)) throw new Exception("Found a rock in the center column");
+		if (Tiles.GetRow(midHeight).Any(t => t == Tile.Rock)) throw new Exception("Found a rock in the center row");
+
+		if (Tiles.GetColumn(0).Any(t => t == Tile.Rock)) throw new Exception("Found a rock in the left column");
+		if (Tiles.GetColumn(Width - 1).Any(t => t == Tile.Rock)) throw new Exception("Found a rock in the right column");
+		if (Tiles.GetRow(0).Any(t => t == Tile.Rock)) throw new Exception("Found a rock in the top row");
+		if (Tiles.GetRow(Height - 1).Any(t => t == Tile.Rock)) throw new Exception("Found a rock in the bottom row");
 	}
 }
