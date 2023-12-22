@@ -33,14 +33,11 @@ internal class Brick
 		Debug.Assert(X.Min >= 0 && X.Max >= 0 && Y.Min >= 0 && Y.Max >= 0 && Z.Min >= 0 && Z.Max >= 0);
 	}
 
-	private Brick[]? bricksAbove = null;
-	private Brick[] BricksAbove
+	public IEnumerable<Brick> BricksAbove
 	{
 		get
 		{
-			if (bricksAbove != null)
-				return bricksAbove;
-			return bricksAbove = FindAbove().Distinct().ToArray();
+			return FindAbove().Distinct();
 
 			IEnumerable<Brick> FindAbove()
 			{
@@ -51,14 +48,11 @@ internal class Brick
 		}
 	}
 
-	private Brick[]? bricksBelow = null;
-	private Brick[] BricksBelow
+	public IEnumerable<Brick> BricksBelow
 	{
 		get
 		{
-			if (bricksBelow != null)
-				return bricksBelow;
-			return bricksBelow = FindBelow().Distinct().ToArray();
+			return FindBelow().Distinct();
 
 			IEnumerable<Brick> FindBelow()
 			{
@@ -69,7 +63,7 @@ internal class Brick
 		}
 	}
 
-	private IEnumerable<Location> AllLocations
+	public IEnumerable<Location> AllLocations
 	{
 		get
 		{
@@ -80,7 +74,7 @@ internal class Brick
 		}
 	}
 
-	private IEnumerable<Location> TopLocations
+	public IEnumerable<Location> TopLocations
 	{
 		get
 		{
@@ -90,7 +84,7 @@ internal class Brick
 		}
 	}
 
-	private IEnumerable<Location> BottomLocations
+	public IEnumerable<Location> BottomLocations
 	{
 		get
 		{
@@ -100,8 +94,14 @@ internal class Brick
 		}
 	}
 
+	public bool MarkedDestroyed { get; private set; } = false;
+	internal void Destroy() => MarkedDestroyed = true;
+	internal void Restore() => MarkedDestroyed = false;
+
 	public bool IsLoose => !BricksAbove.Where(b => !b.IsStable).Any();
-	public bool IsStable => BricksBelow.Length > 1;
+	public bool IsStable => BricksBelow.Where(b => !b.MarkedDestroyed).Skip(1).Any();
+
+	public bool IsFloating => !BricksBelow.Where(b => !b.MarkedDestroyed).Any();
 
 	internal void ClaimSpace()
 	{
@@ -121,16 +121,13 @@ internal class Brick
 			clearBelow = locationsBelow.All(l => BrickPile.CheckIfFree(l, this));
 			if (clearBelow)
 			{
-				Brick[] supportedBricks = BricksAbove;
+				Brick[] supportedBricks = BricksAbove.ToArray();
 				BrickPile.ReleaseSpace(this, currentLocations);
 				BrickPile.ClaimSpace(this, locationsBelow);
 				Z = (Z.Min - 1, Z.Max - 1);
 
 				foreach (Brick brick in supportedBricks)
 					brick.TriggerFall();
-
-				bricksAbove = null;
-				bricksBelow = null;
 			}
 		}
 	}

@@ -63,4 +63,29 @@ internal class BrickPile
 	}
 
 	internal int CountLoose() => Bricks.Where(b => b.IsLoose).Count();
+	internal int SumChains()
+	{
+		int count = 0;
+		foreach (Brick brick in Bricks)
+			count += FindChainFor(brick);
+		return count;
+	}
+
+	private int FindChainFor(Brick firstBrick)
+	{
+		DestroyBrick(firstBrick);
+
+		int count = Bricks.Where(b => b.MarkedDestroyed).Count() - 1; //-1 because you don't count the first brick.
+		foreach (Brick brick in Bricks)
+			brick.Restore();
+		return count;
+
+		static void DestroyBrick(Brick firstBrick)
+		{
+			firstBrick.Destroy();
+			foreach (Brick brick in firstBrick.BricksAbove)
+				if (brick.IsFloating)
+					DestroyBrick(brick);
+		}
+	}
 }
