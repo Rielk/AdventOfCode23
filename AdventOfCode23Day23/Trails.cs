@@ -57,7 +57,7 @@ internal class Trails
 			completedNodes.Add(firstNode);
 
 		FindConnectedNodes(firstNode, 0, firstNode.Location, firstNode.Location);
-		foreach ((Node node, _) in firstNode.ConnectedNodes)
+		foreach ((Node node, _) in firstNode.Connections)
 			ConnectNewNodes(node, completedNodes);
 	}
 
@@ -126,20 +126,22 @@ internal class Trails
 
 	internal int FindLongestTrail() => WorstPathFrom(StartNode, 0);
 
-	private int WorstPathFrom(Node node, int currentWeight, IEnumerable<Node>? previouslyVisited = null)
+	private int WorstPathFrom(Node node, int currentWeight, HashSet<Location>? previouslyVisited = null)
 	{
 		if (node == EndNode)
 			return currentWeight;
 
 		if (previouslyVisited == null)
-			previouslyVisited = [node];
+			previouslyVisited = new([node.Location]);
 		else
-			previouslyVisited = previouslyVisited.Append(node);
+			previouslyVisited.Add(node.Location);
 
 		List<int> possibleWeights = [];
-		foreach ((Node nextNode, int weightToNext) in node.ConnectedNodes)
-			if (!previouslyVisited.Contains(nextNode))
+		foreach ((Node nextNode, int weightToNext) in node.Connections)
+			if (!previouslyVisited.Contains(nextNode.Location))
 				possibleWeights.Add(WorstPathFrom(nextNode, currentWeight + weightToNext, previouslyVisited));
+
+		previouslyVisited.Remove(node.Location);
 
 		if (possibleWeights.Count == 0)
 			return -1;
