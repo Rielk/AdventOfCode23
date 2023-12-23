@@ -3,6 +3,8 @@ using AdventOfCode23Day23;
 
 internal class Trails
 {
+	public bool Icy { get; }
+
 	private Dictionary<Location, Node> Nodes { get; } = [];
 
 	private MapTile[,] Tiles { get; }
@@ -15,8 +17,9 @@ internal class Trails
 	public Node EndNode { get; }
 	public Location End => EndNode.Location;
 
-	public Trails(string[] strings)
+	public Trails(string[] strings, bool icy)
 	{
+		Icy = icy;
 		Height = strings.Length;
 		Width = strings[0].Length;
 
@@ -86,20 +89,28 @@ internal class Trails
 	private Location[] GetAdjacentForTile(Location location)
 	{
 		(int X, int Y) = (location.X, location.Y);
-		return GetTile(location) switch
-		{
-			MapTile.Path => [
+		if (Icy)
+			return GetTile(location) switch
+			{
+				MapTile.Path => [
+					new(X + 1, Y),
+					new(X - 1, Y),
+					new(X, Y + 1),
+					new(X, Y - 1),
+				],
+				MapTile.SlopeUp => [new(X, Y - 1)],
+				MapTile.SlopeDown => [new(X, Y + 1)],
+				MapTile.SlopeLeft => [new(X - 1, Y)],
+				MapTile.SlopeRight => [new(X + 1, Y)],
+				_ => throw new NotImplementedException(),
+			};
+		else
+			return [
 				new(X + 1, Y),
 				new(X - 1, Y),
 				new(X, Y + 1),
 				new(X, Y - 1),
-			],
-			MapTile.SlopeUp => [new(X, Y - 1)],
-			MapTile.SlopeDown => [new(X, Y + 1)],
-			MapTile.SlopeLeft => [new(X - 1, Y)],
-			MapTile.SlopeRight => [new(X + 1, Y)],
-			_ => throw new NotImplementedException(),
-		};
+			];
 	}
 
 	private IEnumerable<Location> GetNonForestAdjacents(Location location) => GetAdjacentForTile(location).Where(a => GetTile(a) != MapTile.Forest);
