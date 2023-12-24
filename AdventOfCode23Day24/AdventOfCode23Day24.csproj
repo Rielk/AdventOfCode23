@@ -34,4 +34,8 @@
     <Folder Include="Resources\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AdventOfCode23Utilities\AdventOfCode23Utilities.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -28,8 +28,6 @@ internal class Hailstone
 
 	public Vector3? IntersectIn3D(Hailstone other, Vector3 offsetVel) => Intersect(Position, other.Position, Velocity - offsetVel, other.Velocity - offsetVel);
 
-	public bool ReachesPoint(Vector3 point) => Intersect(Position, point, Velocity, Vector3.Zero) != null;
-
 	private static Vector3? Intersect(Vector3 pos1, Vector3 pos2, Vector3 vel1, Vector3 vel2)
 	{
 		//For reasoning to maths: https://math.stackexchange.com/questions/4443993/how-does-this-code-find-the-intersection-point-between-two-lines
