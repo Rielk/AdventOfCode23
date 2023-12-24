@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace AdventOfCode23Day24;
+﻿namespace AdventOfCode23Day24;
 internal class Hailstone
 {
 	public Vector3 Position { get; }
@@ -9,8 +7,8 @@ internal class Hailstone
 	public Hailstone(string line)
 	{
 		string[] split = line.Split('@');
-		float[] posSplit = split[0].Split(',').Select(s => float.Parse(s.Trim())).ToArray();
-		float[] velSplit = split[1].Split(',').Select(s => float.Parse(s.Trim())).ToArray();
+		long[] posSplit = split[0].Split(',').Select(s => long.Parse(s.Trim())).ToArray();
+		long[] velSplit = split[1].Split(',').Select(s => long.Parse(s.Trim())).ToArray();
 
 		Position = new(posSplit[0], posSplit[1], posSplit[2]);
 		Velocity = new(velSplit[0], velSplit[1], velSplit[2]);
@@ -35,8 +33,11 @@ internal class Hailstone
 		var V4 = Vector3.Cross(startDif, vel2);
 		var velCross = Vector3.Cross(vel1, vel2);
 
-		float t = Vector3.Dot(V4, velCross) / Vector3.Dot(velCross, velCross);
-		float s = (pos1.X + (t * vel1.X) - pos2.X) / vel2.X;
+		decimal magnitude = Vector3.Dot(velCross, velCross);
+		if (magnitude == 0)
+			return null;
+		decimal t = Vector3.Dot(V4, velCross) / magnitude;
+		decimal s = (pos1.X + (t * vel1.X) - pos2.X) / vel2.X;
 
 		if (t < 0 || s < 0)
 			return null;

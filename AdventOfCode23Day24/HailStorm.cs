@@ -1,6 +1,5 @@
 ﻿using AdventOfCode23Utilities;
 using System.Diagnostics;
-using System.Numerics;
 
 namespace AdventOfCode23Day24;
 internal class HailStorm
@@ -31,26 +30,26 @@ internal class HailStorm
 		Vector3 vDif1 = stone1.Velocity - stone2.Velocity;
 		Vector3 vDif2 = stone1.Velocity - stone3.Velocity;
 
-		float[,] pSkew1 = SkewMatrix(pDif1);
-		float[,] pSkew2 = SkewMatrix(pDif2);
-		float[,] vSkew1 = SkewMatrix(vDif1);
-		float[,] vSkew2 = SkewMatrix(vDif2);
+		decimal[,] pSkew1 = SkewMatrix(pDif1);
+		decimal[,] pSkew2 = SkewMatrix(pDif2);
+		decimal[,] vSkew1 = SkewMatrix(vDif1);
+		decimal[,] vSkew2 = SkewMatrix(vDif2);
 
-		float[,] stack1 = StackHorizontal(pSkew1, vSkew1);
-		float[,] stack2 = StackHorizontal(pSkew2, vSkew2);
-		float[,] M = StackVertical(stack1, stack2);
-		float[,] invertM = Inverse(M);
+		decimal[,] stack1 = StackHorizontal(pSkew1, vSkew1);
+		decimal[,] stack2 = StackHorizontal(pSkew2, vSkew2);
+		decimal[,] M = StackVertical(stack1, stack2);
+		decimal[,] invertM = Inverse(M);
 
 		Vector3 rhs1 = Vector3.Cross(stone2.Position, stone2.Velocity) - Vector3.Cross(stone1.Position, stone1.Velocity);
 		Vector3 rhs2 = Vector3.Cross(stone3.Position, stone3.Velocity) - Vector3.Cross(stone1.Position, stone1.Velocity);
-		float[,] RHS = StackVertical(ToArray(rhs1), ToArray(rhs2));
+		decimal[,] RHS = StackVertical(ToArray(rhs1), ToArray(rhs2));
 
-		float[,] result = MultiplyMatrix(invertM, RHS);
-		vel = -new Vector3((float)Math.Round(result[0, 0]), (float)Math.Round(result[0, 1]), (float)Math.Round(result[0, 2]));
-		pos = -new Vector3((float)Math.Round(result[0, 3]), (float)Math.Round(result[0, 4]), (float)Math.Round(result[0, 5]));
+		decimal[,] result = MultiplyMatrix(invertM, RHS);
+		vel = -new Vector3(Math.Round(result[0, 0]), Math.Round(result[0, 1]), Math.Round(result[0, 2]));
+		pos = -new Vector3(Math.Round(result[0, 3]), Math.Round(result[0, 4]), Math.Round(result[0, 5]));
 	}
 
-	private static float[,] MultiplyMatrix(float[,] m1, float[,] m2)
+	private static decimal[,] MultiplyMatrix(decimal[,] m1, decimal[,] m2)
 	{
 		int r1 = m1.GetLength(1);
 		int c1 = m1.GetLength(0);
@@ -58,13 +57,13 @@ internal class HailStorm
 		int c2 = m2.GetLength(0);
 
 		Debug.Assert(c1 == r2);
-		float[,] kHasil = new float[c2, r1];
+		decimal[,] kHasil = new decimal[c2, r1];
 
 		for (int y = 0; y < r1; y++)
 		{
 			for (int x2 = 0; x2 < c2; x2++)
 			{
-				float temp = 0;
+				decimal temp = 0;
 				for (int x1 = 0; x1 < c1; x1++)
 				{
 					temp += m1[x1, y] * m2[x2, x1];
@@ -76,24 +75,24 @@ internal class HailStorm
 		return kHasil;
 	}
 
-	private static float[,] Inverse(float[,] m)
+	private static decimal[,] Inverse(decimal[,] m)
 	{
 		int n = m.GetLength(1);
-		float[,] result = Duplicate(m);
+		decimal[,] result = Duplicate(m);
 
-		float[,] lum = MatrixDecompose(m, out int[] perm, out _) ?? throw new Exception("Unable to compute inverse");
-		float[] b = new float[n];
+		decimal[,] lum = MatrixDecompose(m, out int[] perm, out _) ?? throw new Exception("Unable to compute inverse");
+		decimal[] b = new decimal[n];
 		for (int i = 0; i < n; ++i)
 		{
 			for (int j = 0; j < n; ++j)
 			{
 				if (i == perm[j])
-					b[j] = 1.0f;
+					b[j] = 1.0M;
 				else
-					b[j] = 0.0f;
+					b[j] = 0.0M;
 			}
 
-			float[] x = HelperSolve(lum, b);
+			decimal[] x = HelperSolve(lum, b);
 
 			for (int j = 0; j < n; ++j)
 				result[i, j] = x[j];
@@ -101,29 +100,29 @@ internal class HailStorm
 		return result;
 	}
 
-	private static float[,] SkewMatrix(Vector3 vector)
+	private static decimal[,] SkewMatrix(Vector3 vector)
 	{
-		float[,] ret = new float[3, 3];
+		decimal[,] ret = new decimal[3, 3];
 		(ret[0, 0], ret[0, 1], ret[0, 2]) = (0, -vector.Z, vector.Y);
 		(ret[1, 0], ret[1, 1], ret[1, 2]) = (vector.Z, 0, -vector.X);
 		(ret[2, 0], ret[2, 1], ret[2, 2]) = (-vector.Y, vector.X, 0);
 		return ret;
 	}
 
-	private static float[,] ToArray(Vector3 vector)
+	private static decimal[,] ToArray(Vector3 vector)
 	{
-		float[,] ret = new float[1, 3];
+		decimal[,] ret = new decimal[1, 3];
 		(ret[0, 0], ret[0, 1], ret[0, 2]) = (vector.X, vector.Y, vector.Z);
 		return ret;
 	}
 
-	private static float[,] StackHorizontal(float[,] m1, float[,] m2)
+	private static decimal[,] StackHorizontal(decimal[,] m1, decimal[,] m2)
 	{
 		int height = m1.GetLength(1);
 		Debug.Assert(height == m2.GetLength(1));
 		int length1 = m1.GetLength(0);
 		int length2 = m2.GetLength(0);
-		float[,] ret = new float[length1 + length2, height];
+		decimal[,] ret = new decimal[length1 + length2, height];
 		for (int j = 0; j < height; j++)
 		{
 			for (int i = 0; i < length1; i++)
@@ -134,13 +133,13 @@ internal class HailStorm
 		return ret;
 	}
 
-	private static float[,] StackVertical(float[,] m1, float[,] m2)
+	private static decimal[,] StackVertical(decimal[,] m1, decimal[,] m2)
 	{
 		int width = m1.GetLength(0);
 		Debug.Assert(width == m2.GetLength(0));
 		int length1 = m1.GetLength(1);
 		int length2 = m2.GetLength(1);
-		float[,] ret = new float[width, length1 + length2];
+		decimal[,] ret = new decimal[width, length1 + length2];
 		for (int i = 0; i < width; i++)
 		{
 			for (int j = 0; j < length1; j++)
@@ -151,26 +150,26 @@ internal class HailStorm
 		return ret;
 	}
 
-	private static float[,] Duplicate(float[,] m)
+	private static decimal[,] Duplicate(decimal[,] m)
 	{
-		float[,] ret = new float[m.GetLength(0), m.GetLength(1)];
+		decimal[,] ret = new decimal[m.GetLength(0), m.GetLength(1)];
 		for (int i = 0; i < m.GetLength(0); ++i) // copy the values
 			for (int j = 0; j < m.GetLength(1); ++j)
 				ret[i, j] = m[i, j];
 		return ret;
 	}
 
-	private static float[] HelperSolve(float[,] luMatrix, float[] b)
+	private static decimal[] HelperSolve(decimal[,] luMatrix, decimal[] b)
 	{
 		// before calling this helper, permute b using the perm array
 		// from MatrixDecompose that generated luMatrix
 		int n = luMatrix.GetLength(1);
-		float[] x = new float[n];
+		decimal[] x = new decimal[n];
 		b.CopyTo(x, 0);
 
 		for (int i = 1; i < n; ++i)
 		{
-			float sum = x[i];
+			decimal sum = x[i];
 			for (int j = 0; j < i; ++j)
 				sum -= luMatrix[j, i] * x[j];
 			x[i] = sum;
@@ -179,7 +178,7 @@ internal class HailStorm
 		x[n - 1] /= luMatrix[n - 1, n - 1];
 		for (int i = n - 2; i >= 0; --i)
 		{
-			float sum = x[i];
+			decimal sum = x[i];
 			for (int j = i + 1; j < n; ++j)
 				sum -= luMatrix[j, i] * x[j];
 			x[i] = sum / luMatrix[i, i];
@@ -188,7 +187,7 @@ internal class HailStorm
 		return x;
 	}
 
-	private static float[,] MatrixDecompose(float[,] m, out int[] perm, out int toggle)
+	private static decimal[,] MatrixDecompose(decimal[,] m, out int[] perm, out int toggle)
 	{
 		// Doolittle LUP decomposition with partial pivoting.
 		// rerturns: result is L (with 1s on diagonal) and U;
@@ -200,7 +199,7 @@ internal class HailStorm
 
 		int n = rows; // convenience
 
-		float[,] ret = Duplicate(m);
+		decimal[,] ret = Duplicate(m);
 
 		perm = new int[n]; // set up row permutation result
 		for (int i = 0; i < n; ++i) { perm[i] = i; }
@@ -210,7 +209,7 @@ internal class HailStorm
 
 		for (int j = 0; j < n - 1; ++j) // each column
 		{
-			float colMax = Math.Abs(ret[j, j]); // find largest val in col
+			decimal colMax = Math.Abs(ret[j, j]); // find largest val in col
 			int pRow = j;
 			//for (int i = j + 1; i less-than n; ++i)
 			//{
@@ -234,8 +233,8 @@ internal class HailStorm
 
 			if (pRow != j) // if largest value not on pivot, swap rows
 			{
-				float[] pRowRow = ret.GetRow(pRow).ToArray();
-				float[] jRow = ret.GetRow(j).ToArray();
+				decimal[] pRowRow = ret.GetRow(pRow).ToArray();
+				decimal[] jRow = ret.GetRow(j).ToArray();
 				for (int z = 0; z < pRowRow.Length; z++)
 				{
 					ret[z, pRow] = jRow[z];
@@ -255,13 +254,13 @@ internal class HailStorm
 			// a 0 in column j, and swap that good row with row j
 			// --------------------------------------------------
 
-			if (ret[j, j] == 0.0)
+			if (ret[j, j] == 0.0M)
 			{
 				// find a good row to swap
 				int goodRow = -1;
 				for (int row = j + 1; row < n; ++row)
 				{
-					if (ret[j, row] != 0.0)
+					if (ret[j, row] != 0.0M)
 						goodRow = row;
 				}
 
@@ -269,8 +268,8 @@ internal class HailStorm
 					throw new Exception("Cannot use Doolittle's method");
 
 				// swap rows so 0.0 no longer on diagonal
-				float[] goodRowRow = ret.GetRow(goodRow).ToArray();
-				float[] jRow = ret.GetRow(j).ToArray();
+				decimal[] goodRowRow = ret.GetRow(goodRow).ToArray();
+				decimal[] jRow = ret.GetRow(j).ToArray();
 				for (int z = 0; z < goodRowRow.Length; z++)
 				{
 					ret[z, goodRow] = jRow[z];
@@ -301,7 +300,7 @@ internal class HailStorm
 		return ret;
 	}
 
-	internal int Count2DIntersects(float atLeast, float atMost)
+	internal int Count2DIntersects(long atLeast, long atMost)
 	{
 		int count = 0;
 		for (int i = 0; i < Stones.Count; i++)
