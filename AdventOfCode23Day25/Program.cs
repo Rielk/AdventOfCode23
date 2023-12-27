@@ -1,7 +1,7 @@
 ﻿using AdventOfCode23Day25;
 using AdventOfCode23Day25.Properties;
 
-string input = Resources.InputTest1;
+string input = Resources.Input1;
 
 Network network = new(input.Split(Environment.NewLine));
 

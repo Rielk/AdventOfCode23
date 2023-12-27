@@ -1,71 +1,108 @@
-﻿
-
-
-namespace AdventOfCode23Day25;
+﻿namespace AdventOfCode23Day25;
 
 internal class Node
 {
 	public string Name { get; }
 	public string[] ContainingNames { get; }
 
-	private List<string> ConnectionPointers { get; } = [];
+	private Dictionary<Node, int> Connections { get; } = [];
 
-	public int NumberOfNodes { get; }
+	public int NumberOfNodes => ContainingNames.Length;
 
-	private Node(int numberOfNodes, params string[] names)
+	private Node(params string[] names)
 	{
 		ContainingNames = names;
 		Name = string.Join(",", ContainingNames);
-		NumberOfNodes = numberOfNodes;
 	}
 
-	private Node(IEnumerable<string> connectionPointers, int numberOfNodes, params string[] names) : this(numberOfNodes, names)
+	private void ConnectToNode(Node otherNode, int weight)
 	{
-		ConnectionPointers = connectionPointers.ToList();
+		Connections.Add(otherNode, weight);
+		otherNode.Connections.Add(this, weight);
 	}
 
-	private void ConnectToNode(Node otherNode)
+	private void RemoveConnection(Node otherNode)
 	{
-		ConnectionPointers.Add(otherNode.Name);
-		otherNode.ConnectionPointers.Add(Name);
+		Connections.Remove(otherNode);
+		otherNode.Connections.Remove(this);
 	}
 
-	public static void CreateAndAdd(string input, Dictionary<string, Node> otherNodes)
+	public static void CreateAndAdd(string input, ref List<Node> currentNodes)
 	{
 		string[] split = input.Split(':');
 		string name = split[0];
 		string[] connStrings = split[1].Trim().Split(" ");
+		CreateAndAdd(ref currentNodes, name, connStrings);
+	}
 
-		Node node = GetNodeAt(name);
+	private static void CreateAndAdd(ref List<Node> currentNodes, string name, IEnumerable<string> connStrings)
+	{
+		Node node = GetNode(ref currentNodes, name);
 
 		foreach (string conn in connStrings)
 		{
-			Node otherNode = GetNodeAt(conn);
-			node.ConnectToNode(otherNode);
+			Node otherNode = GetNode(ref currentNodes, conn);
+			node.ConnectToNode(otherNode, 1);
 		}
 
-		Node GetNodeAt(string name)
+		Node GetNode(ref List<Node> currentNodes, string name)
 		{
-			if (otherNodes.TryGetValue(name, out Node? node))
+			Node? node = currentNodes.Where(t => t.Name == name).FirstOrDefault();
+			if (node != null)
 				return node;
-			node = new(1, name);
-			otherNodes.Add(name, node);
+			node = new(name);
+			currentNodes.Add(node);
 			return node;
 		}
 	}
 
-	internal Node Copy() => new(ConnectionPointers, NumberOfNodes, Name);
 	internal static Node MergeNodes(Node merge1, Node merge2)
 	{
 		string[] newContainingNames = [.. merge1.ContainingNames, .. merge2.ContainingNames];
-		IEnumerable<string> newConnections = merge1.ConnectionPointers.Concat(merge2.ConnectionPointers);
 		int newNumberOfNodes = merge1.NumberOfNodes + merge2.NumberOfNodes;
-		return new(newConnections, newNumberOfNodes, newContainingNames);
+
+		Dictionary<Node, int> newConnections = [];
+		foreach ((Node node, int weight) in merge1.GetConnected())
+		{
+			newConnections.Add(node, weight);
+			node.RemoveConnection(merge1);
+		}
+		foreach ((Node node, int weight) in merge2.GetConnected())
+		{
+			if (newConnections.TryGetValue(node, out int addWeight))
+				newConnections[node] = addWeight + weight;
+			else
+				newConnections.Add(node, weight);
+			node.RemoveConnection(merge2);
+		}
+
+		Node newNode = new(newContainingNames);
+		foreach (KeyValuePair<Node, int> x in newConnections)
+			newNode.ConnectToNode(x.Key, x.Value);
+
+		return newNode;
 	}
 
-	internal IEnumerable<Node> GetConnected(Dictionary<string, Node> nodeDict)
+	internal IEnumerable<(Node node, int weight)> GetConnected()
 	{
-		foreach (string conn in ConnectionPointers)
-			yield return nodeDict[conn];
+		foreach (KeyValuePair<Node, int> conn in Connections)
+			yield return (conn.Key, conn.Value);
+	}
+
+	internal int WeightTo(Node toNode)
+	{
+		if (Connections.TryGetValue(toNode, out int weight))
+			return weight;
+		return 0;
+
+	}
+
+	internal int ConnectionsTo(IEnumerable<Node> nodes)
+	{
+		int count = 0;
+		foreach (Node node in nodes)
+			if (Connections.TryGetValue(node, out int val))
+				count += val;
+		return count;
 	}
 }
