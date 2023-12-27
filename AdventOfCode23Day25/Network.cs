@@ -27,11 +27,12 @@ internal class Network
 
 			while (weights.Keys.Count > 2)
 			{
-				Node tightest = TightestTo(weights);
+				Node tightest = weights.MaxBy(p => p.Value).Key;
 				addedNodes.Add(tightest);
 				weights.Remove(tightest);
-				foreach (KeyValuePair<Node, int> wp in weights)
-					weights[wp.Key] = wp.Value + wp.Key.WeightTo(tightest);
+				foreach ((Node node, int weight) in tightest.GetConnected())
+					if (weights.TryGetValue(node, out int currentWeight))
+						weights[node] = currentWeight + weight;
 			}
 
 			Node n1 = weights.Keys.First();
@@ -49,15 +50,4 @@ internal class Network
 		}
 	}
 
-	private static Node TightestTo(Dictionary<Node, int> weights)
-	{
-		(Node? node, int weight) maxNode = (null, int.MinValue);
-		foreach (KeyValuePair<Node, int> np in weights)
-			if (np.Value > maxNode.weight)
-				maxNode = (np.Key, weight: np.Value);
-
-		if (maxNode.node == null)
-			throw new NotImplementedException("Couldn't find tight node");
-		return maxNode.node;
-	}
 }
