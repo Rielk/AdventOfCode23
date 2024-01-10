@@ -37,17 +37,16 @@ internal class Node
 	public int FollowNodes(Node endNode, IEnumerable<Direction> route) => FollowNodes(this, endNode, route);
 	public static int FollowNodes(Node startNode, Node endNode, IEnumerable<Direction> route)
 	{
-		return FollowNodes(startNode, n => n == endNode, route.GetEnumerator(), out _);
+		return FollowNodes(startNode, n => n == endNode, route, out _);
 	}
 
-	private int FollowNodes(Func<Node, bool> endPredicate, IEnumerator<Direction> route, out Node endNode) => FollowNodes(this, endPredicate, route, out endNode);
-	private static int FollowNodes(Node startNode, Func<Node, bool> endPredicate, IEnumerator<Direction> route, out Node endNode)
+	private int FollowNodes(Func<Node, bool> endPredicate, IEnumerable<Direction> route, out Node endNode) => FollowNodes(this, endPredicate, route, out endNode);
+	private static int FollowNodes(Node startNode, Func<Node, bool> endPredicate, IEnumerable<Direction> route, out Node endNode)
 	{
 		int steps = 0;
 		Node currNode = startNode;
-		while (route.MoveNext())
+		foreach (Direction direction in route)
 		{
-			Direction direction = route.Current;
 			currNode = currNode.Follow(direction);
 			steps++;
 			if (endPredicate(currNode))
@@ -65,10 +64,9 @@ internal class Node
 		List<int> tmpIntervals = [];
 		List<Node> intervalNodes = [];
 		Node node = startNode;
-		IEnumerator<Direction> routeEnumerator = route.GetEnumerator();
 		while (true)
 		{
-			int interval = node.FollowNodes(endPredicate, routeEnumerator, out node);
+			int interval = node.FollowNodes(endPredicate, route, out node);
 			bool loopComplete = intervalNodes.Contains(node); //This ignores position in the ENumerable which only works because of the question's input.
 															  //In the general case this would fail
 															  //TODO: Generalise by also trcking poistion in route and comparing.
