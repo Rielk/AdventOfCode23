@@ -38,9 +38,15 @@ internal class Dish
 			{
 				int loopLength = i - prevCount;
 				int extraCycles = (n - prevCount) % loopLength;
-				for (int j = 0; j < extraCycles; j++)
-					PerformCycle();
-				return;
+				foreach (KeyValuePair<DishState, int> kp in PreviousStates)
+				{
+					if (kp.Value == prevCount + extraCycles)
+					{
+						State = kp.Key;
+						return;
+					}
+				}
+				throw new Exception("Couldn't find previous position in loop");
 			}
 			PreviousStates[State] = i;
 			PerformCycle();
