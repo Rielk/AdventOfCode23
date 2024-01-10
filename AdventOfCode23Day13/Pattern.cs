@@ -65,7 +65,7 @@ internal class Pattern
 			int smudgesRequired = 0;
 			for (int offset = 0; offset <= MaxOffset; offset++)
 			{
-				smudgesRequired += CompareSequences(targetSmudges, lineGenerator(beforeLine - offset), lineGenerator(beforeLine + 1 + offset));
+				smudgesRequired += CompareSequences(targetSmudges - smudgesRequired, lineGenerator(beforeLine - offset), lineGenerator(beforeLine + 1 + offset));
 				if (smudgesRequired > targetSmudges)
 				{
 					isSymetry = false;
